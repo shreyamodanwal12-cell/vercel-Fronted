@@ -7,21 +7,43 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+
 const ADMIN_TOKEN = 'ibid-admin-token-2026';
 const ADMIN_EMAIL = 'admin@ibid.com';
 const ADMIN_PASSWORD = 'admin123';
+
+// Fix: Use correct path for Vercel
 const DB_FILE = path.join(__dirname, '..', 'server', 'data', 'db.json');
 
 app.use(cors());
 app.use(express.json());
 
+// Error handler for file operations
 async function readDb() {
-  const raw = await fs.readFile(DB_FILE, 'utf-8');
-  return JSON.parse(raw);
+  try {
+    const raw = await fs.readFile(DB_FILE, 'utf-8');
+    return JSON.parse(raw);
+  } catch (error) {
+    console.error('Error reading database:', error);
+    // Return default structure if file doesn't exist
+    return {
+      books: [],
+      categories: [],
+      users: [],
+      orders: [],
+    };
+  }
 }
 
 async function writeDb(data) {
-  await fs.writeFile(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  try {
+    // Ensure directory exists
+    await fs.mkdir(path.dirname(DB_FILE), { recursive: true });
+    await fs.writeFile(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error writing database:', error);
+    throw error;
+  }
 }
 
 function requireAdmin(req, res, next) {

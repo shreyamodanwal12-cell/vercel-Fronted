@@ -31,7 +31,7 @@ export default function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [bookForm, setBookForm] = useState(defaultBook);
   const [editingBookId, setEditingBookId] = useState(null);
-  const [loginData, setLoginData] = useState({ email: 'admin@ibid.com', password: '' });
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
 
   useEffect(() => {
     if (token) {
@@ -78,14 +78,22 @@ export default function AdminPanel() {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    
+    // Validate both email and password are provided
+    if (!loginData.email.trim() || !loginData.password.trim()) {
+      setMessage('Email and password are required.');
+      return;
+    }
+    
     setLoading(true);
     setMessage('');
     try {
       const data = await apiFetch('/api/admin/login', {
         method: 'POST',
-        body: { email: loginData.email, password: loginData.password },
+        body: { email: loginData.email.trim(), password: loginData.password },
       });
       setToken(data.token);
+      setLoginData({ email: '', password: '' });
       setMessage('Logged in successfully.');
     } catch (error) {
       setMessage(error.message);
@@ -102,6 +110,7 @@ export default function AdminPanel() {
     setUsers([]);
     setBookForm(defaultBook);
     setEditingBookId(null);
+    setLoginData({ email: '', password: '' });
     setMessage('Logged out.');
   };
 
@@ -191,22 +200,28 @@ export default function AdminPanel() {
           <h1 className="text-3xl font-semibold text-slate-900">Admin sign in</h1>
           <p className="mt-3 text-sm text-slate-500">Use the admin panel to manage books, orders, and users.</p>
           <form onSubmit={handleLogin} className="mt-8 space-y-5">
-            <label className="block text-sm font-medium text-slate-700">Email</label>
-            <input
-              value={loginData.email}
-              onChange={(event) => setLoginData((prev) => ({ ...prev, email: event.target.value }))}
-              type="email"
-              required
-              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500"
-            />
-            <label className="block text-sm font-medium text-slate-700">Password</label>
-            <input
-              value={loginData.password}
-              onChange={(event) => setLoginData((prev) => ({ ...prev, password: event.target.value }))}
-              type="password"
-              required
-              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500"
-            />
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+              <input
+                value={loginData.email}
+                onChange={(event) => setLoginData((prev) => ({ ...prev, email: event.target.value }))}
+                type="email"
+                placeholder="Enter admin email"
+                required
+                className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-orange-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+              <input
+                value={loginData.password}
+                onChange={(event) => setLoginData((prev) => ({ ...prev, password: event.target.value }))}
+                type="password"
+                placeholder="Enter admin password"
+                required
+                className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-orange-500"
+              />
+            </div>
             <button type="submit" className="w-full rounded-full bg-orange-500 px-6 py-4 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:opacity-50" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in as admin'}
             </button>
@@ -289,8 +304,12 @@ export default function AdminPanel() {
                         <p className="text-sm text-slate-500">{book.category} • {book.author}</p>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <button type="button" onClick={() => startEditBook(book)} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:border-slate-300 hover:bg-slate-50">Edit</button>
-                        <button type="button" onClick={() => handleDeleteBook(book.id)} className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600">Delete</button>
+                        <button type="button" onClick={() => startEditBook(book)} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:border-slate-300">
+                          Edit
+                        </button>
+                        <button type="button" onClick={() => handleDeleteBook(book.id)} className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600">
+                          Delete
+                        </button>
                       </div>
                     </div>
                   ))
@@ -304,22 +323,26 @@ export default function AdminPanel() {
               <h2 className="text-xl font-semibold text-slate-900">Book details</h2>
               <form onSubmit={handleSaveBook} className="mt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input value={bookForm.title} onChange={(e) => handleBookFormChange('title', e.target.value)} placeholder="Title" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500" required />
-                  <input value={bookForm.author} onChange={(e) => handleBookFormChange('author', e.target.value)} placeholder="Author" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500" required />
+                  <input value={bookForm.title} onChange={(e) => handleBookFormChange('title', e.target.value)} placeholder="Title" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                  <input value={bookForm.author} onChange={(e) => handleBookFormChange('author', e.target.value)} placeholder="Author" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input value={bookForm.category} onChange={(e) => handleBookFormChange('category', e.target.value)} placeholder="Category" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500" required />
-                  <input value={bookForm.price} onChange={(e) => handleBookFormChange('price', e.target.value)} type="number" step="0.01" placeholder="Price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500" required />
+                  <input value={bookForm.category} onChange={(e) => handleBookFormChange('category', e.target.value)} placeholder="Category" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                  <input value={bookForm.price} onChange={(e) => handleBookFormChange('price', e.target.value)} type="number" step="0.01" placeholder="Price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input value={bookForm.oldPrice} onChange={(e) => handleBookFormChange('oldPrice', e.target.value)} type="number" step="0.01" placeholder="Old price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500" />
-                  <input value={bookForm.badge} onChange={(e) => handleBookFormChange('badge', e.target.value)} placeholder="Badge" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500" />
+                  <input value={bookForm.oldPrice} onChange={(e) => handleBookFormChange('oldPrice', e.target.value)} type="number" step="0.01" placeholder="Old price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                  <input value={bookForm.badge} onChange={(e) => handleBookFormChange('badge', e.target.value)} placeholder="Badge" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
                 </div>
-                <input value={bookForm.cover} onChange={(e) => handleBookFormChange('cover', e.target.value)} placeholder="Cover image URL" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500" />
-                <textarea value={bookForm.description} onChange={(e) => handleBookFormChange('description', e.target.value)} placeholder="Description" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none focus:border-orange-500" />
+                <input value={bookForm.cover} onChange={(e) => handleBookFormChange('cover', e.target.value)} placeholder="Cover image URL" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                <textarea value={bookForm.description} onChange={(e) => handleBookFormChange('description', e.target.value)} placeholder="Description" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
                 <div className="flex flex-wrap gap-3">
-                  <button type="submit" className="rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600">{editingBookId ? 'Update book' : 'Create book'}</button>
-                  <button type="button" onClick={() => { setBookForm(defaultBook); setEditingBookId(null); }} className="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50">Clear</button>
+                  <button type="submit" className="rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600">
+                    {editingBookId ? 'Update book' : 'Create book'}
+                  </button>
+                  <button type="button" onClick={() => { setBookForm(defaultBook); setEditingBookId(null); }} className="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300">
+                    Cancel
+                  </button>
                 </div>
               </form>
             </div>
