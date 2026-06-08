@@ -146,6 +146,13 @@
       "email": "admin@ibid.com",
       "password": "admin123",
       "role": "Admin"
+    },
+    {
+      "id": 3,
+      "name": "srwarjbwjke",
+      "email": "jhsgjhkjfsejgjfwer@gmail.com",
+      "password": "12345",
+      "role": "Shopper"
     }
   ],
   "orders": [
