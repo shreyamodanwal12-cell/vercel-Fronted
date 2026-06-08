@@ -1,0 +1,32 @@
+export const blogs = [
+  {
+    id: 1,
+    slug: 'reading-rituals-for-every-reader',
+    title: 'Reading rituals every book lover should try',
+    category: 'Lifestyle',
+    author: 'N. Carter',
+    date: 'June 2, 2026',
+    excerpt: 'Build a reading ritual with comfortable spaces, curated lists, and immersive book worlds.',
+    image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 2,
+    slug: 'why-graphic-novels-are-more-than-just-comics',
+    title: 'Why graphic novels are more than just comics',
+    category: 'Editorial',
+    author: 'A. Santos',
+    date: 'May 28, 2026',
+    excerpt: 'Discover the emotional power and storytelling depth of today’s graphic novels.',
+    image: 'https://images.unsplash.com/photo-1496104679561-38b9e02726c2?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: 3,
+    slug: 'the-rise-of-manga-in-western-culture',
+    title: 'The rise of manga in western culture',
+    category: 'Culture',
+    author: 'S. Takahashi',
+    date: 'May 15, 2026',
+    excerpt: 'A look at how manga became a global phenomenon and changed art styles worldwide.',
+    image: 'https://images.unsplash.com/photo-1527030280862-64139fba04ca?auto=format&fit=crop&w=900&q=80',
+  },
+];
