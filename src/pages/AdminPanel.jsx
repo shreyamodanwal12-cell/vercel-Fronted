@@ -88,10 +88,19 @@ export default function AdminPanel() {
     setLoading(true);
     setMessage('');
     try {
+      // const data = await apiFetch('/api/admin/login', {
+      //   method: 'POST',
+      //   body: { email: loginData.email.trim(), password: loginData.password },
+      // });
       const data = await apiFetch('/api/admin/login', {
-        method: 'POST',
-        body: { email: loginData.email.trim(), password: loginData.password },
-      });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },   // add header
+  body: JSON.stringify({                            // stringify body
+    email: loginData.email.trim(),
+    password: loginData.password,
+  }),
+});
+
       setToken(data.token);
       setLoginData({ email: '', password: '' });
       setMessage('Logged in successfully.');
