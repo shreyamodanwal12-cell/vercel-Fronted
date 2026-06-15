@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { apiFetch } from '../utils/api';
 
@@ -22,6 +23,7 @@ const defaultBook = {
 
 export default function AdminPanel() {
   const [token, setToken] = useState(localStorage.getItem('IBID_ADMIN_TOKEN') || '');
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -61,10 +63,17 @@ export default function AdminPanel() {
         const booksData = await apiFetch('/api/books');
         setBooks(booksData);
       }
-      if (activeTab === 'orders') {
-        const ordersData = await apiFetch('/api/orders');
-        setOrders(ordersData);
-      }
+     if (activeTab === 'orders') {
+  const ordersData = await apiFetch('/api/orders');
+ console.log(
+  "ORDERS API FULL =",
+  JSON.stringify(ordersData, null, 2)
+);
+ console.log("FIRST ORDER =", ordersData[0]);
+  console.log("ORDER ITEMS =", ordersData[0]?.items);
+
+  setOrders(ordersData);
+}
       if (activeTab === 'users') {
         const usersData = await apiFetch('/api/users');
         setUsers(usersData);
@@ -92,14 +101,18 @@ export default function AdminPanel() {
       //   method: 'POST',
       //   body: { email: loginData.email.trim(), password: loginData.password },
       // });
-      const data = await apiFetch('/api/admin/login', {
+     console.log('LOGIN DATA =', {
+  email: loginData.email,
+  password: loginData.password
+})
+//alert(JSON.stringify(loginData))
+    const data = await apiFetch('/api/admin/login', {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },   // add header
-  body: JSON.stringify({                            // stringify body
+  body: {
     email: loginData.email.trim(),
     password: loginData.password,
-  }),
-});
+  },
+})
 
       setToken(data.token);
       setLoginData({ email: '', password: '' });
@@ -114,7 +127,7 @@ export default function AdminPanel() {
   const handleLogout = () => {
     setToken('');
     setDashboard(null);
-    setBooks([]);
+    
     setOrders([]);
     setUsers([]);
     setBookForm(defaultBook);
@@ -137,7 +150,7 @@ export default function AdminPanel() {
         price: Number(bookForm.price),
         oldPrice: bookForm.oldPrice ? Number(bookForm.oldPrice) : Number(bookForm.price),
       };
-
+console.log("BOOK PAYLOAD =", payload);
       if (editingBookId) {
         await apiFetch(`/api/books/${editingBookId}`, {
           method: 'PUT',
@@ -286,7 +299,7 @@ export default function AdminPanel() {
                       <h3 className="font-semibold text-slate-900">Order #{order.id}</h3>
                       <p className="text-sm text-slate-500">Status: {order.status} • Total: ${order.total.toFixed(2)}</p>
                     </div>
-                    <p className="text-sm font-semibold text-slate-900">{new Date(order.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm font-semibold text-slate-900">{new Date(order.created_at).toLocaleDateString()}</p>
                   </div>
                 ))
               ) : (
@@ -332,19 +345,19 @@ export default function AdminPanel() {
               <h2 className="text-xl font-semibold text-slate-900">Book details</h2>
               <form onSubmit={handleSaveBook} className="mt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input value={bookForm.title} onChange={(e) => handleBookFormChange('title', e.target.value)} placeholder="Title" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
-                  <input value={bookForm.author} onChange={(e) => handleBookFormChange('author', e.target.value)} placeholder="Author" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                  <input value={bookForm.title} onChange={(e) => handleBookFormChange('title', e.target.value)} placeholder="Title" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm  text-black outline-none focus:border-orange-500" />
+                  <input value={bookForm.author} onChange={(e) => handleBookFormChange('author', e.target.value)} placeholder="Author" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input value={bookForm.category} onChange={(e) => handleBookFormChange('category', e.target.value)} placeholder="Category" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
-                  <input value={bookForm.price} onChange={(e) => handleBookFormChange('price', e.target.value)} type="number" step="0.01" placeholder="Price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                  <input value={bookForm.category} onChange={(e) => handleBookFormChange('category', e.target.value)} placeholder="Category" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
+                  <input value={bookForm.price} onChange={(e) => handleBookFormChange('price', e.target.value)} type="number" step="0.01" placeholder="Price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input value={bookForm.oldPrice} onChange={(e) => handleBookFormChange('oldPrice', e.target.value)} type="number" step="0.01" placeholder="Old price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
-                  <input value={bookForm.badge} onChange={(e) => handleBookFormChange('badge', e.target.value)} placeholder="Badge" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                  <input value={bookForm.oldPrice} onChange={(e) => handleBookFormChange('oldPrice', e.target.value)} type="number" step="0.01" placeholder="Old price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
+                  <input value={bookForm.badge} onChange={(e) => handleBookFormChange('badge', e.target.value)} placeholder="Badge" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
-                <input value={bookForm.cover} onChange={(e) => handleBookFormChange('cover', e.target.value)} placeholder="Cover image URL" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
-                <textarea value={bookForm.description} onChange={(e) => handleBookFormChange('description', e.target.value)} placeholder="Description" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                <input value={bookForm.cover} onChange={(e) => handleBookFormChange('cover', e.target.value)} placeholder="Cover image URL" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
+                <textarea value={bookForm.description} onChange={(e) => handleBookFormChange('description', e.target.value)} placeholder="Description" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 <div className="flex flex-wrap gap-3">
                   <button type="submit" className="rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600">
                     {editingBookId ? 'Update book' : 'Create book'}
@@ -364,27 +377,58 @@ export default function AdminPanel() {
           <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
             <h2 className="text-xl font-semibold text-slate-900">Orders</h2>
             <div className="mt-6 space-y-4">
-              {orders.length ? orders.map((order) => (
-                <div key={order.id} className="rounded-3xl border border-slate-100 p-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <h3 className="font-semibold text-slate-900">Order #{order.id}</h3>
-                      <p className="text-sm text-slate-500">Status: {order.status} • Total: ${order.total.toFixed(2)}</p>
-                    </div>
-                    <p className="text-sm text-slate-500">{new Date(order.createdAt).toLocaleString()}</p>
-                  </div>
-                  <div className="mt-3 grid gap-2 rounded-3xl bg-slate-50 p-4 text-sm text-slate-700">
-                    {order.items.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between gap-3">
-                        <span>{item.title}</span>
-                        <span>{item.quantity} × ${item.price.toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )) : (
-                <p className="text-sm text-slate-500">No orders yet.</p>
-              )}
+             {orders.length ? orders.map((order) => (
+  <div key={order.id} className="rounded-3xl border border-slate-100 p-4">
+
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h3 className="font-semibold text-slate-900">
+          Order #{order.id}
+        </h3>
+
+        <p className="text-sm text-slate-500">
+          Status: {order.status || "Pending"} • Total: $
+          {Number(order.total || 0).toFixed(2)}
+        </p>
+      </div>
+
+      <p className="text-sm text-slate-500">
+        {order.created_at
+          ? new Date(order.created_at).toLocaleString()
+          : "No Date"}
+      </p>
+    </div>
+
+    {/* 👇 CLICK BUTTON ADDED HERE */}
+    <div className="mt-3 flex justify-end">
+      <button
+        onClick={() => navigate(`/admin/orders/${order.id}`)}
+        className="rounded-full bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+      >
+        View Order
+      </button>
+    </div>
+
+    {/* ITEMS */}
+    <div className="mt-3 grid gap-2 rounded-3xl bg-slate-50 p-4 text-sm text-slate-700">
+      {(order.items || []).length ? (
+        order.items.map((item, index) => (
+          <div key={index} className="flex justify-between">
+            <span>Book ID: {item.book_id}</span>
+            <span>Qty: {item.quantity}</span>
+          </div>
+        ))
+      ) : (
+        <p>No Items</p>
+      )}
+    </div>
+
+  </div>
+)) : (
+  <p className="text-sm text-slate-500">
+    No orders yet.
+  </p>
+)}
             </div>
           </div>
         </div>

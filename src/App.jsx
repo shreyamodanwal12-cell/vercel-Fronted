@@ -1,4 +1,5 @@
-﻿import React from "react";
+﻿import Books from "./components/Book"
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
@@ -49,7 +50,9 @@ function App() {
             <Route path="/blog/:id" element={<SingleBlogPage />} />
             <Route path="/about" element={<AboutUsPage />} />
             <Route path="/contact" element={<ContactUsPage />} />
+            <Route path="/books" element={<Books />} />
           </Routes>
+          
         </AnimatePresence>
       </Layout>
     </Router>

@@ -36,7 +36,9 @@ export default function Dashboard() {
         </div>
         <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
           <p className="text-sm uppercase tracking-[0.28em] text-slate-500">Revenue</p>
-          <p className="mt-4 text-4xl font-semibold text-slate-900">{dashboard ? `$${dashboard.totalRevenue.toFixed(2)}` : '—'}</p>
+         <p className="mt-4 text-4xl font-semibold text-slate-900">
+ {dashboard ? `$${dashboard.totalRevenue.toFixed(2)}` : '—'}
+</p>
           <p className="mt-3 text-sm text-slate-500">Total revenue from recent orders.</p>
         </div>
         <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
@@ -56,7 +58,9 @@ export default function Dashboard() {
                     <h3 className="font-semibold text-slate-900">Order #{order.id}</h3>
                     <p className="text-sm text-slate-500">Status: {order.status}</p>
                   </div>
-                  <p className="text-sm font-semibold text-slate-900">${order.total.toFixed(2)}</p>
+                  <p className="text-sm font-semibold text-slate-900">
+  ${order.total.toFixed(2)}
+</p>
                 </div>
               ))
             ) : (

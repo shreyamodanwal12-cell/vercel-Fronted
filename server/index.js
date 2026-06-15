@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 4000
 // ---------------- SUPABASE ----------------
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
 // ---------------- HEALTH CHECK ----------------
@@ -49,6 +49,7 @@ app.get('/api/books', async (req, res) => {
 
   const { data, error } = await query
 
+  
   if (error) {
     return res.status(500).json({ error: error.message })
   }
@@ -73,13 +74,20 @@ app.get('/api/books/:id', async (req, res) => {
 
 // ---------------- CREATE BOOK ----------------
 app.post('/api/books', async (req, res) => {
+    console.log('BOOK DATA =', req.body)
   const book = req.body
-
+if (!book.slug || book.slug.trim() === '') {
+  book.slug = book.title
+    .toLowerCase()
+    .replace(/\s+/g, '-');
+}
   const { data, error } = await supabase
     .from('books')
+    console.log("BOOK SLUG =", book.slug)
     .insert([book])
     .select()
-
+ console.log('SUPABASE ERROR =', error)
+  console.log('SUPABASE DATA =', data)
   if (error) {
     return res.status(500).json({ error: error.message })
   }
@@ -285,11 +293,57 @@ app.get('/api/dashboard', async (req, res) => {
   const { data: users } = await supabase.from('users').select('*')
   const { data: orders } = await supabase.from('orders').select('*')
 
+  const totalRevenue =
+    orders?.reduce(
+      (sum, order) => sum + Number(order.total || 0),
+      0
+    ) || 0
+
+  const recentOrders =
+    orders?.slice(-5).reverse() || []
+
   res.json({
     totalBooks: books?.length || 0,
     totalUsers: users?.length || 0,
-    totalOrders: orders?.length || 0
+    totalOrders: orders?.length || 0,
+    totalRevenue,
+    recentOrders
   })
+})
+
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    console.log('ADMIN LOGIN BODY =', req.body)
+
+    const { email, password } = req.body
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .eq('password', password)
+      .eq('role', 'Admin')
+      .single()
+
+    console.log('ADMIN FOUND =', data)
+    console.log('ADMIN ERROR =', error)
+
+    if (error || !data) {
+      return res.status(401).json({
+        error: 'Invalid admin credentials'
+      })
+    }
+
+    res.json({
+      token: `admin-token-${data.id}`,
+      user: data
+    })
+  } catch (err) {
+    console.log('SERVER ERROR =', err)
+    res.status(500).json({
+      error: err.message
+    })
+  }
 })
 // ---------------- START SERVER ----------------
 app.listen(PORT, () => {
