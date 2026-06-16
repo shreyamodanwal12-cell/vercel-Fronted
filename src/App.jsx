@@ -19,6 +19,7 @@ import WishlistPage from "./pages/Wishlist";
 import CheckoutPage from "./pages/Checkout";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
+import OrderDetails from "./pages/admin/OrderDetails";
 import DashboardPage from "./pages/Dashboard";
 import AdminPanelPage from "./pages/AdminPanel";
 import BlogListingPage from "./pages/Blog";
@@ -46,6 +47,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/admin" element={<AdminPanelPage />} />
+            <Route path="/admin/orders/:id" element={<OrderDetails />} />
             <Route path="/blog" element={<BlogListingPage />} />
             <Route path="/blog/:id" element={<SingleBlogPage />} />
             <Route path="/about" element={<AboutUsPage />} />

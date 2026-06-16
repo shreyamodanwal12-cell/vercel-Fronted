@@ -7,8 +7,8 @@ const tabs = [
   { key: 'books', label: 'Books' },
   { key: 'orders', label: 'Orders' },
   { key: 'users', label: 'Users' },
+  { key: 'vendors', label: 'Vendors' },
 ];
-
 const defaultBook = {
   title: '',
   slug: '',
@@ -31,6 +31,7 @@ export default function AdminPanel() {
   const [books, setBooks] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+ const [vendors, setVendors] = useState([]); 
   const [bookForm, setBookForm] = useState(defaultBook);
   const [editingBookId, setEditingBookId] = useState(null);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -63,21 +64,28 @@ export default function AdminPanel() {
         const booksData = await apiFetch('/api/books');
         setBooks(booksData);
       }
-     if (activeTab === 'orders') {
-  const ordersData = await apiFetch('/api/orders');
- console.log(
-  "ORDERS API FULL =",
-  JSON.stringify(ordersData, null, 2)
-);
- console.log("FIRST ORDER =", ordersData[0]);
-  console.log("ORDER ITEMS =", ordersData[0]?.items);
+      if (activeTab === 'orders') {
+        const ordersData = await apiFetch('/api/orders');
+        console.log(
+          "ORDERS API FULL =",
+          JSON.stringify(ordersData, null, 2)
+        );
+        console.log("FIRST ORDER =", ordersData[0]);
+        console.log("ORDER ITEMS =", ordersData[0]?.items);
 
-  setOrders(ordersData);
-}
+        setOrders(ordersData);
+      }
       if (activeTab === 'users') {
         const usersData = await apiFetch('/api/users');
         setUsers(usersData);
       }
+     if (activeTab === 'vendors') {
+  const vendorsData = await apiFetch('/api/vendors');
+
+  console.log("VENDORS =", vendorsData);
+
+  setVendors(vendorsData);
+}
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -87,13 +95,13 @@ export default function AdminPanel() {
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    
+
     // Validate both email and password are provided
     if (!loginData.email.trim() || !loginData.password.trim()) {
       setMessage('Email and password are required.');
       return;
     }
-    
+
     setLoading(true);
     setMessage('');
     try {
@@ -101,18 +109,18 @@ export default function AdminPanel() {
       //   method: 'POST',
       //   body: { email: loginData.email.trim(), password: loginData.password },
       // });
-     console.log('LOGIN DATA =', {
-  email: loginData.email,
-  password: loginData.password
-})
-//alert(JSON.stringify(loginData))
-    const data = await apiFetch('/api/admin/login', {
-  method: 'POST',
-  body: {
-    email: loginData.email.trim(),
-    password: loginData.password,
-  },
-})
+      console.log('LOGIN DATA =', {
+        email: loginData.email,
+        password: loginData.password
+      })
+      //alert(JSON.stringify(loginData))
+      const data = await apiFetch('/api/admin/login', {
+        method: 'POST',
+        body: {
+          email: loginData.email.trim(),
+          password: loginData.password,
+        },
+      })
 
       setToken(data.token);
       setLoginData({ email: '', password: '' });
@@ -127,7 +135,7 @@ export default function AdminPanel() {
   const handleLogout = () => {
     setToken('');
     setDashboard(null);
-    
+
     setOrders([]);
     setUsers([]);
     setBookForm(defaultBook);
@@ -150,7 +158,7 @@ export default function AdminPanel() {
         price: Number(bookForm.price),
         oldPrice: bookForm.oldPrice ? Number(bookForm.oldPrice) : Number(bookForm.price),
       };
-console.log("BOOK PAYLOAD =", payload);
+      console.log("BOOK PAYLOAD =", payload);
       if (editingBookId) {
         await apiFetch(`/api/books/${editingBookId}`, {
           method: 'PUT',
@@ -203,7 +211,23 @@ console.log("BOOK PAYLOAD =", payload);
     } finally {
       setLoading(false);
     }
-  };
+  };const updateVendor = async (id, updates) => {
+  console.log("UPDATE VENDOR =", id, updates);
+
+  try {
+    const response = await apiFetch(`/api/vendors/${id}`, {
+      method: 'PUT',
+      body: updates,
+    });
+
+    console.log("RESPONSE =", response);
+
+    const vendorData = await apiFetch('/api/vendors');
+    setVendors(vendorData);
+  } catch (error) {
+    console.log("ERROR =", error);
+  }
+}; 
 
   const overviewStats = useMemo(
     () => [
@@ -377,58 +401,58 @@ console.log("BOOK PAYLOAD =", payload);
           <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
             <h2 className="text-xl font-semibold text-slate-900">Orders</h2>
             <div className="mt-6 space-y-4">
-             {orders.length ? orders.map((order) => (
-  <div key={order.id} className="rounded-3xl border border-slate-100 p-4">
+              {orders.length ? orders.map((order) => (
+                <div key={order.id} className="rounded-3xl border border-slate-100 p-4">
 
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h3 className="font-semibold text-slate-900">
-          Order #{order.id}
-        </h3>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h3 className="font-semibold text-slate-900">
+                        Order #{order.id}
+                      </h3>
 
-        <p className="text-sm text-slate-500">
-          Status: {order.status || "Pending"} • Total: $
-          {Number(order.total || 0).toFixed(2)}
-        </p>
-      </div>
+                      <p className="text-sm text-slate-500">
+                        Status: {order.status || "Pending"} • Total: $
+                        {Number(order.total || 0).toFixed(2)}
+                      </p>
+                    </div>
 
-      <p className="text-sm text-slate-500">
-        {order.created_at
-          ? new Date(order.created_at).toLocaleString()
-          : "No Date"}
-      </p>
-    </div>
+                    <p className="text-sm text-slate-500">
+                      {order.created_at
+                        ? new Date(order.created_at).toLocaleString()
+                        : "No Date"}
+                    </p>
+                  </div>
 
-    {/* 👇 CLICK BUTTON ADDED HERE */}
-    <div className="mt-3 flex justify-end">
-      <button
-        onClick={() => navigate(`/admin/orders/${order.id}`)}
-        className="rounded-full bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
-      >
-        View Order
-      </button>
-    </div>
+                  {/* 👇 CLICK BUTTON ADDED HERE */}
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      onClick={() => navigate(`/admin/orders/${order.id}`)}
+                      className="rounded-full bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+                    >
+                      View Order
+                    </button>
+                  </div>
 
-    {/* ITEMS */}
-    <div className="mt-3 grid gap-2 rounded-3xl bg-slate-50 p-4 text-sm text-slate-700">
-      {(order.items || []).length ? (
-        order.items.map((item, index) => (
-          <div key={index} className="flex justify-between">
-            <span>Book ID: {item.book_id}</span>
-            <span>Qty: {item.quantity}</span>
-          </div>
-        ))
-      ) : (
-        <p>No Items</p>
-      )}
-    </div>
+                  {/* ITEMS */}
+                  <div className="mt-3 grid gap-2 rounded-3xl bg-slate-50 p-4 text-sm text-slate-700">
+                    {(order.items || []).length ? (
+                      order.items.map((item, index) => (
+                        <div key={index} className="flex justify-between">
+                          <span>Book ID: {item.book_id}</span>
+                          <span>Qty: {item.quantity}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No Items</p>
+                    )}
+                  </div>
 
-  </div>
-)) : (
-  <p className="text-sm text-slate-500">
-    No orders yet.
-  </p>
-)}
+                </div>
+              )) : (
+                <p className="text-sm text-slate-500">
+                  No orders yet.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -451,7 +475,74 @@ console.log("BOOK PAYLOAD =", payload);
             )}
           </div>
         </div>
+        
       )}
+      {activeTab === 'vendors' && (
+  <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+    <h2 className="text-xl font-semibold text-slate-900">
+      Vendors
+    </h2>
+
+    <div className="mt-6 grid gap-4">
+      {vendors.length ? (
+        vendors.map((vendor) => (
+          <div
+            key={vendor.id}
+            className="rounded-3xl border border-slate-100 bg-slate-50 p-4"
+          >
+            <h3 className="font-semibold text-slate-900">
+              {vendor.name}
+            </h3>
+
+            <p className="text-sm text-slate-500">
+              {vendor.email}
+            </p>
+
+            <p className="text-sm">
+              Approved:
+              {" "}
+              {vendor.is_approved ? "Yes" : "No"}
+            </p>
+
+            <p className="text-sm">
+              Active:
+              {" "}
+              {vendor.is_active ? "Yes" : "No"}
+            </p>
+            <div className="mt-3 flex gap-2">
+  <button
+    onClick={() =>
+      updateVendor(vendor.id, {
+        is_approved: !vendor.is_approved,
+      })
+    }
+    className="rounded-full bg-green-500 px-4 py-2 text-sm text-white"
+  >
+    {vendor.is_approved ? 'Unapprove' : 'Approve'}
+  </button>
+
+  <button
+    onClick={() =>
+      updateVendor(vendor.id, {
+        is_active: !vendor.is_active,
+      })
+    }
+    className="rounded-full bg-red-500 px-4 py-2 text-sm text-white"
+  >
+    {vendor.is_active ? 'Deactivate' : 'Activate'}
+  </button>
+</div>
+          </div>
+
+        ))
+      ) : (
+        <p>No vendors found.</p>
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 }
+
+

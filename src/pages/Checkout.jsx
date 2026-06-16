@@ -4,7 +4,7 @@ import { useCart } from '../contexts/CartContext';
 
 export default function Checkout() {
   const { cart, subtotal, clearCart } = useCart();
-
+ const userId = localStorage.getItem('IBID_USER_ID');
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -29,28 +29,35 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      const orderData = {
-        items: cart,
-        total,
-        customer: form,
-        createdAt: new Date(),
-      };
-
+ const orderData = {
+  user_id: userId ? Number(userId) : null,
+  items: cart,
+  total,
+  customer: form,
+  createdAt: new Date(),
+};
+console.log("ORDER DATA =", orderData);
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
       });
 
-      if (!res.ok) throw new Error('Order failed');
+  if (!res.ok) {
+  const errorText = await res.text();
+  throw new Error(errorText);
+}
 
       setSuccess(true);
       clearCart();
       setForm({ name: '', email: '', phone: '', address: '' });
-    } catch (err) {
-      console.log(err);
-      alert('Something went wrong while placing order');
-    } finally {
+    } 
+   catch (err) {
+  console.error("ORDER ERROR =", err);
+  alert(err.message);
+
+    } 
+    finally {
       setLoading(false);
     }
   };

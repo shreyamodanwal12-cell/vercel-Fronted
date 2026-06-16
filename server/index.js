@@ -18,6 +18,29 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
+// ---------------- CATEGORIES ----------------
+app.post('/api/categories', async (req, res) => {
+  const { data, error } = await supabase
+    .from('categories')
+    .insert([req.body])
+    .select();
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json(data[0]);
+});
+
+app.get('/api/categories', async (req, res) => {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*');
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json(data);
+});
+
+
 // ---------------- HEALTH CHECK ----------------
 app.get('/', (req, res) => {
   res.send('iBid backend running with Supabase 🚀')
@@ -233,22 +256,126 @@ app.get('/api/users', async (req, res) => {
     })
   }
 })
+// VENDORS API
+app.get('/api/vendors', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('role', 'Vendor');
 
+    if (error) {
+      return res.status(500).json({
+        error: error.message,
+      });
+    }
+
+    res.json(data);
+
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+});
+app.put('/api/vendors/:id', async (req, res) => {
+  console.log("VENDOR ID =", req.params.id);
+  console.log("BODY =", req.body);
+
+  const { data, error } = await supabase
+    .from('users')
+    .update(req.body)
+    .eq('id', req.params.id)
+    .select();
+
+  console.log("DATA =", data);
+  console.log("ERROR =", error);
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+
+ res.json(data?.[0] || null);
+});
+app.put('/api/vendors/:id/approve', async (req, res) => {
+  const { data, error } = await supabase
+    .from('users')
+    .update({
+      is_approved: true
+    })
+    .eq('id', req.params.id)
+    .select();
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message
+    });
+  }
+
+  res.json(data[0]);
+});
+// categories api4
+app.post('/api/categories', async (req, res) => {
+  const { data, error } = await supabase
+    .from('categories')
+    .insert([req.body])
+    .select();
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json(data[0]);
+});
+
+app.get('/api/categories', async (req, res) => {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*');
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json(data);
+});
+
+app.put('/api/categories/:id', async (req, res) => {
+  const { data, error } = await supabase
+    .from('categories')
+    .update(req.body)
+    .eq('id', req.params.id)
+    .select();
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json(data[0]);
+});
+
+
+app.delete('/api/categories/:id', async (req, res) => {
+  const { error } = await supabase
+    .from('categories')
+    .delete()
+    .eq('id', req.params.id);
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json({ success: true });
+});
 //order api
 app.post('/api/orders', async (req, res) => {
   console.log('BODY =', req.body)
 
   try {
-    const { user_id, total, items } = req.body
-
+   const { user_id, total, items } = req.body;
     const { data, error } = await supabase
       .from('orders')
       .insert([
         {
-          user_id,
+           user_id: user_id || null,
           total,
           items,
           status: 'Pending'
+          
         }
       ])
       .select()
@@ -267,26 +394,34 @@ app.post('/api/orders', async (req, res) => {
     })
   }
 })
+// GET ALL ORDERS
 app.get('/api/orders', async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*');
 
-    if (error) {
-      return res.status(500).json({
-        error: error.message
-      })
-    }
+  if (error) return res.status(500).json({ error: error.message });
 
-    res.json(data)
+  res.json(data);
+});
 
-  } catch (err) {
-    res.status(500).json({
-      error: err.message
-    })
-  }
-})
+
+// GET SINGLE ORDER
+app.get('/api/orders/:id', async (req, res) => {
+  const id = Number(req.params.id);
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) return res.status(500).json({ error: error.message });
+
+  if (!data) return res.status(404).json({ error: "Order not found" });
+
+  res.json(data);
+});
 //dashboard
 app.get('/api/dashboard', async (req, res) => {
   const { data: books } = await supabase.from('books').select('*')
@@ -344,7 +479,7 @@ app.post('/api/admin/login', async (req, res) => {
       error: err.message
     })
   }
-})
+}) 
 // ---------------- START SERVER ----------------
 app.listen(PORT, () => {
   console.log(`iBid backend running on http://localhost:${PORT}`)
