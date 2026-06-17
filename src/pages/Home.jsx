@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -7,20 +7,34 @@ import 'swiper/css/navigation';
 import { Link } from 'react-router-dom';
 import { books } from '../data/books';
 import { banners } from '../data/banners';
-import { categories } from '../data/categories';
+
 import { authors } from '../data/authors';
 import { testimonials } from '../data/testimonials';
 import ProductCard from '../components/common/ProductCard';
 import CategoryCard from '../components/common/CategoryCard';
 import AuthorCard from '../components/common/AuthorCard';
 import Modal from '../components/ui/Modal';
-
+import { apiFetch } from '../utils/api';
 export default function Home() {
   const [subscribeOpen, setSubscribeOpen] = useState(false);
   const [subscriber, setSubscriber] = useState('');
+  const [categories, setCategories] = useState([]);
+  console.log("HOME CATEGORIES =", categories);
   const featured = books.slice(0, 4);
   const bestSellers = books.slice(0, 3);
+useEffect(() => {
+  const loadCategories = async () => {
+    try {
+      const data = await apiFetch('/api/categories');
+      console.log("HOME CATEGORIES =", data);
+      setCategories(data || []);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
+  loadCategories();
+}, []);
   const handleSubscribe = (event) => {
     event.preventDefault();
     const email = event.target.email.value.trim();
@@ -99,10 +113,35 @@ export default function Home() {
           <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Shop by category</h2>
         </div>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {categories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
-        </div>
+{categories.map((category) => {
+  console.log(category);
+
+  return (
+    <div
+      key={category.id}
+      className="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+    >
+      <div className="h-48 overflow-hidden bg-slate-100">
+        <img
+          src={category.image ? `/images/${category.image}` : '/placeholder.jpg'}
+          alt={category.title}
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+        />
+      </div>
+
+      <div className="p-5">
+        <h3 className="text-lg font-bold text-slate-900">
+          {category.title}
+        </h3>
+
+        <p className="mt-2 text-sm text-slate-600">
+          {category.description}
+        </p>
+      </div>
+    </div>
+  );
+})}
+</div>
       </section>
 
       <section className="bg-slate-900 py-16 text-white">

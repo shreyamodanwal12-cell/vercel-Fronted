@@ -20,14 +20,31 @@ const supabase = createClient(
 
 // ---------------- CATEGORIES ----------------
 app.post('/api/categories', async (req, res) => {
-  const { data, error } = await supabase
-    .from('categories')
-    .insert([req.body])
-    .select();
+  try {
+    console.log('CATEGORY BODY =', req.body);
 
-  if (error) return res.status(500).json({ error: error.message });
+    const { data, error } = await supabase
+      .from('categories')
+      .insert([req.body])
+      .select();
 
-  res.json(data[0]);
+    console.log('CATEGORY DATA =', data);
+    console.log('CATEGORY ERROR =', error);
+
+    if (error) {
+      return res.status(500).json({
+        error: error.message,
+      });
+    }
+
+    res.json(data[0]);
+  } catch (err) {
+    console.log('SERVER CATEGORY ERROR =', err);
+
+    res.status(500).json({
+      error: err.message,
+    });
+  }
 });
 
 app.get('/api/categories', async (req, res) => {

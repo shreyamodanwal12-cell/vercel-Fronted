@@ -20,6 +20,12 @@ const defaultBook = {
   cover: '',
   description: '',
 };
+const defaultCategory = {
+  title: '',
+  description: '',
+   image: '',
+};
+
 
 export default function AdminPanel() {
   const [token, setToken] = useState(localStorage.getItem('IBID_ADMIN_TOKEN') || '');
@@ -32,6 +38,8 @@ export default function AdminPanel() {
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
  const [vendors, setVendors] = useState([]); 
+ const [categories, setCategories] = useState([]);
+const [categoryForm, setCategoryForm] = useState(defaultCategory);
   const [bookForm, setBookForm] = useState(defaultBook);
   const [editingBookId, setEditingBookId] = useState(null);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -50,6 +58,9 @@ export default function AdminPanel() {
       loadData();
     }
   }, [activeTab]);
+  useEffect(() => {
+  fetchCategories();
+}, []);
 
   const loggedIn = Boolean(token);
 
@@ -93,6 +104,15 @@ export default function AdminPanel() {
     }
   };
 
+  //fetch categories for book form
+const fetchCategories = async () => {
+  try {
+    const res = await apiFetch('/api/categories');
+    setCategories(res || []);
+  } catch (err) {
+    setMessage(err.message);
+  }
+};
   const handleLogin = async (event) => {
     event.preventDefault();
 
@@ -147,7 +167,22 @@ export default function AdminPanel() {
   const handleBookFormChange = (field, value) => {
     setBookForm((current) => ({ ...current, [field]: value }));
   };
+const handleAddCategory = async (e) => {
+  e.preventDefault();
 
+  try {
+    await apiFetch('/api/categories', {
+      method: 'POST',
+      body: categoryForm,
+    });
+
+    setCategoryForm(defaultCategory);
+    fetchCategories();
+    setMessage('Category added successfully.');
+  } catch (err) {
+    setMessage(err.message);
+  }
+};
   const handleSaveBook = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -182,7 +217,27 @@ export default function AdminPanel() {
       setLoading(false);
     }
   };
+//add category
+const addCategory = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
+  try {
+    await apiFetch('/api/categories', {
+      method: 'POST',
+      body: categoryForm,
+    });
+
+    setCategoryForm(defaultCategory);
+    fetchCategories();
+    setMessage('Category created successfully');
+  } catch (err) {
+    setMessage(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+  
   const startEditBook = (book) => {
     setEditingBookId(book.id);
     setBookForm({
@@ -228,7 +283,19 @@ export default function AdminPanel() {
     console.log("ERROR =", error);
   }
 }; 
+const deleteCategory = async (id) => {
+  if (!window.confirm('Delete category?')) return;
 
+  try {
+    await apiFetch(`/api/categories/${id}`, {
+      method: 'DELETE',
+    });
+
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+  } catch (err) {
+    setMessage(err.message);
+  }
+};
   const overviewStats = useMemo(
     () => [
       { label: 'Books', value: dashboard?.totalBooks ?? '—' },
@@ -304,6 +371,62 @@ export default function AdminPanel() {
       </div>
 
       {message ? <div className="mb-6 rounded-3xl border border-orange-100 bg-orange-50 px-6 py-4 text-sm text-orange-700">{message}</div> : null}
+      <div className="mb-8 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+  <h2 className="text-xl font-semibold text-slate-900">
+    Add Category
+  </h2>
+
+  <form
+    onSubmit={handleAddCategory}
+    className="mt-6 space-y-4"
+  >
+    <input
+      type="text"
+      placeholder="Category Title"
+      value={categoryForm.title}
+      onChange={(e) =>
+        setCategoryForm({
+          ...categoryForm,
+          title: e.target.value,
+        })
+      }
+      className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+    />
+
+    <input
+      type="text"
+      placeholder="Category Description"
+      value={categoryForm.description}
+      onChange={(e) =>
+        setCategoryForm({
+          ...categoryForm,
+          description: e.target.value,
+        })
+      }
+      className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+    />
+
+    <input
+      type="text"
+      placeholder="Image URL"
+      value={categoryForm.image}
+      onChange={(e) =>
+        setCategoryForm({
+          ...categoryForm,
+          image: e.target.value,
+        })
+      }
+      className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+    />
+
+    <button
+      type="submit"
+      className="rounded-full bg-orange-500 px-6 py-3 text-white"
+    >
+      Add Category
+    </button>
+  </form>
+</div>
 
       {activeTab === 'overview' && (
         <div className="grid gap-6 lg:grid-cols-4">
@@ -373,6 +496,22 @@ export default function AdminPanel() {
                   <input value={bookForm.author} onChange={(e) => handleBookFormChange('author', e.target.value)} placeholder="Author" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
+
+                  <select
+  value={bookForm.category}
+  onChange={(e) =>
+    handleBookFormChange('category', e.target.value)
+  }
+  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500"
+>
+  <option value="">Select Category</option>
+
+  {categories.map((cat) => (
+    <option key={cat.id} value={cat.title}>
+      {cat.title}
+    </option>
+  ))}
+</select>
                   <input value={bookForm.category} onChange={(e) => handleBookFormChange('category', e.target.value)} placeholder="Category" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                   <input value={bookForm.price} onChange={(e) => handleBookFormChange('price', e.target.value)} type="number" step="0.01" placeholder="Price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>

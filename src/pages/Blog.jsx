@@ -10,9 +10,13 @@ export default function Blog() {
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-900">Reading inspiration and book news</h1>
       </div>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {blogs.map((post) => (
-          <BlogCard key={post.slug} blog={post} />
-        ))}
+       {Array.isArray(blogs) && blogs.length > 0 &&
+  blogs
+    .filter(post => post)   // ✅ removes undefined items
+    .map((post) => (
+      <BlogCard key={post.id || post.slug} post={post} />
+    ))
+}
       </div>
       <div className="mt-10 text-center">
         <Link to="/contact" className="inline-flex rounded-full bg-orange-500 px-8 py-4 text-sm font-semibold text-white transition hover:bg-orange-600">
