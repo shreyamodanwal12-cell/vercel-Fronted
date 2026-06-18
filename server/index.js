@@ -7,7 +7,14 @@ import { createClient } from '@supabase/supabase-js'
 
 const app = express()
 
-app.use(cors())
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://vercel-fronted-eight.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}))
 app.use(express.json())
 
 const PORT = process.env.PORT || 4000
