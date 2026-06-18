@@ -123,10 +123,13 @@ useEffect(() => {
     >
       <div className="h-48 overflow-hidden bg-slate-100">
         <img
-          src={category.image ? `/images/${category.image}` : '/placeholder.jpg'}
-          alt={category.title}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-        />
+  src={category.image ? `/images/${category.image}` : "/images/coff.jpg"}
+  alt={category.title}
+  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+  onError={(e) => {
+    e.target.src = "/images/coff.jpg";
+  }}
+/>
       </div>
 
       <div className="p-5">

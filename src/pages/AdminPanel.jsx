@@ -5,6 +5,7 @@ import { apiFetch } from '../utils/api';
 const tabs = [
   { key: 'overview', label: 'Overview' },
   { key: 'books', label: 'Books' },
+  { key: 'categories', label: 'Categories' },
   { key: 'orders', label: 'Orders' },
   { key: 'users', label: 'Users' },
   { key: 'vendors', label: 'Vendors' },
@@ -90,6 +91,12 @@ const [categoryForm, setCategoryForm] = useState(defaultCategory);
         const usersData = await apiFetch('/api/users');
         setUsers(usersData);
       }
+if (activeTab === 'categories') {
+  const categoriesData = await apiFetch('/api/categories');
+  console.log('CATEGORIES =', categoriesData);
+  setCategories(categoriesData);
+}
+
      if (activeTab === 'vendors') {
   const vendorsData = await apiFetch('/api/vendors');
 
@@ -266,7 +273,9 @@ const addCategory = async (e) => {
     } finally {
       setLoading(false);
     }
-  };const updateVendor = async (id, updates) => {
+  };
+  
+  const updateVendor = async (id, updates) => {
   console.log("UPDATE VENDOR =", id, updates);
 
   try {
@@ -295,6 +304,15 @@ const deleteCategory = async (id) => {
   } catch (err) {
     setMessage(err.message);
   }
+};
+const handleEditCategory = (cat) => {
+  setCategoryForm({
+    title: cat.title,
+    description: cat.description,
+    image: cat.image || "",
+  });
+
+  setEditingCategoryId(cat.id);
 };
   const overviewStats = useMemo(
     () => [
@@ -371,6 +389,7 @@ const deleteCategory = async (id) => {
       </div>
 
       {message ? <div className="mb-6 rounded-3xl border border-orange-100 bg-orange-50 px-6 py-4 text-sm text-orange-700">{message}</div> : null}
+      { activeTab === 'categories' && (
       <div className="mb-8 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
   <h2 className="text-xl font-semibold text-slate-900">
     Add Category
@@ -427,6 +446,7 @@ const deleteCategory = async (id) => {
     </button>
   </form>
 </div>
+)}
 
       {activeTab === 'overview' && (
         <div className="grid gap-6 lg:grid-cols-4">
@@ -512,6 +532,35 @@ const deleteCategory = async (id) => {
     </option>
   ))}
 </select>
+  <div className="mt-8 space-y-3">
+  {categories.map((cat) => (
+    <div
+      key={cat.id}
+      className="flex items-center justify-between rounded-2xl border p-4"
+    >
+      <div>
+        <h3 className="font-semibold">{cat.title}</h3>
+        <p className="text-sm text-slate-500">
+          {cat.description}
+        </p>
+      </div>
+<div className="flex gap-2">
+      <button
+        onClick={() => handleEditCategory(cat)}
+        className="px-3 py-2 bg-blue-500 text-white rounded"
+      >
+        Edit
+      </button>
+      <button
+        onClick={() => deleteCategory(cat.id)}
+        className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+      >
+        Delete
+      </button>
+    </div>
+    </div>
+  ))}
+</div> 
                   <input value={bookForm.category} onChange={(e) => handleBookFormChange('category', e.target.value)} placeholder="Category" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                   <input value={bookForm.price} onChange={(e) => handleBookFormChange('price', e.target.value)} type="number" step="0.01" placeholder="Price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
