@@ -1,74 +1,154 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { books } from '../data/books';
-
-const orderItems = books.slice(0, 2);
+import { useCart } from '../contexts/CartContext';
 
 export default function Checkout() {
-  const subtotal = orderItems.reduce((sum, book) => sum + book.price, 0);
-  const total = subtotal + 0;
+  const { cart, subtotal, clearCart } = useCart();
+ const userId = localStorage.getItem('IBID_USER_ID');
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const total = subtotal;
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (cart.length === 0) return alert('Cart is empty');
+
+    setLoading(true);
+
+    try {
+ const orderData = {
+  user_id: userId ? Number(userId) : null,
+  items: cart,
+  total,
+  customer: form,
+  createdAt: new Date(),
+};
+console.log("ORDER DATA =", orderData);
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData),
+      });
+
+  if (!res.ok) {
+  const errorText = await res.text();
+  throw new Error(errorText);
+}
+
+      setSuccess(true);
+      clearCart();
+      setForm({ name: '', email: '', phone: '', address: '' });
+    } 
+   catch (err) {
+  console.error("ORDER ERROR =", err);
+  alert(err.message);
+
+    } 
+    finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mb-10">
-        <p className="text-sm uppercase tracking-[0.28em] text-orange-600">Checkout</p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-900">Complete your purchase</h1>
-      </div>
-      <div className="grid gap-8 xl:grid-cols-[1.5fr_0.9fr]">
-        <form className="space-y-8 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900">Billing details</h2>
-            <div className="mt-6 grid gap-6 sm:grid-cols-2">
-              <input type="text" placeholder="Full name" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500" />
-              <input type="email" placeholder="Email address" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500" />
-              <input type="text" placeholder="Phone number" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500" />
-              <input type="text" placeholder="Shipping address" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500" />
-            </div>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900">Payment method</h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {['Credit card', 'PayPal', 'Apple Pay', 'Google Pay'].map((method) => (
-                <button key={method} type="button" className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-left text-sm font-semibold text-slate-700 transition hover:border-orange-500">
-                  {method}
-                </button>
-              ))}
-            </div>
-          </div>
-          <button type="submit" className="w-full rounded-full bg-orange-500 px-6 py-4 text-sm font-semibold text-white transition hover:bg-orange-600">
-            Place order
+    <div className="mx-auto max-w-7xl px-4 py-12">
+      <h1 className="text-4xl font-semibold mb-10">Checkout</h1>
+
+      <div className="grid xl:grid-cols-[1.5fr_0.9fr] gap-8">
+        {/* FORM */}
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 rounded-3xl border p-8"
+        >
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Full name"
+            className="w-full p-3 border rounded-xl"
+          />
+
+          <input
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Email"
+            className="w-full p-3 border rounded-xl"
+          />
+
+          <input
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder="Phone"
+            className="w-full p-3 border rounded-xl"
+          />
+
+          <input
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            placeholder="Address"
+            className="w-full p-3 border rounded-xl"
+          />
+
+          <button
+            disabled={loading}
+            className="w-full bg-orange-500 text-white py-3 rounded-full"
+          >
+            {loading ? 'Placing Order...' : 'Place Order'}
           </button>
+
+          {success && (
+            <p className="text-green-600 font-semibold">
+              Order placed successfully 🎉
+            </p>
+          )}
         </form>
 
-        <aside className="space-y-6 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900">Order summary</h2>
-            <div className="mt-6 space-y-4">
-              {orderItems.map((book) => (
-                <div key={book.slug} className="flex items-center gap-4 rounded-3xl border border-slate-100 p-4">
-                  <img src={book.cover} alt={book.title} className="h-20 w-16 rounded-2xl object-cover" />
-                  <div>
-                    <p className="font-semibold text-slate-900">{book.title}</p>
-                    <p className="text-sm text-slate-500">${book.price.toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
+        {/* ORDER SUMMARY */}
+        <aside className="border p-6 rounded-3xl">
+          <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+
+          {cart.map((item) => (
+            <div key={item.slug} className="flex gap-4 mb-4">
+              <img
+                src={item.cover}
+                className="h-16 w-12 object-cover rounded"
+              />
+              <div>
+                <p className="font-semibold">{item.title}</p>
+                <p className="text-sm text-gray-500">
+                  ${item.price} × {item.quantity}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="space-y-3 rounded-3xl bg-slate-50 p-6">
-            <div className="flex items-center justify-between text-sm text-slate-600">
-              <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm text-slate-600">
-              <span>Shipping</span>
-              <span>Free</span>
-            </div>
-            <div className="border-t border-slate-200 pt-4 text-lg font-semibold text-slate-900">
-              Total <span className="float-right">${total.toFixed(2)}</span>
-            </div>
-          </div>
-          <Link to="/shop" className="inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-            Continue shopping
+          ))}
+
+          <hr className="my-4" />
+
+          <p className="flex justify-between">
+            <span>Total</span>
+            <span>${total.toFixed(2)}</span>
+          </p>
+
+          <Link
+            to="/shop"
+            className="block text-center mt-6 border py-3 rounded-full"
+          >
+            Continue Shopping
           </Link>
         </aside>
       </div>

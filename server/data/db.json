@@ -153,6 +153,13 @@
       "email": "jhsgjhkjfsejgjfwer@gmail.com",
       "password": "12345",
       "role": "Shopper"
+    },
+    {
+      "id": 4,
+      "name": "savan",
+      "email": "savan@gmail.com",
+      "password": "12345",
+      "role": "Shopper"
     }
   ],
   "orders": [

@@ -5,31 +5,43 @@ const CartContext = createContext(null);
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
 
+  // SAFE LOAD
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem('ibid_cart');
       if (savedCart) {
         setCart(JSON.parse(savedCart));
       }
-    } catch (error) {
-      console.warn('Unable to load cart from localStorage', error);
+    } catch (err) {
+      console.log('Cart load error', err);
+      setCart([]);
     }
   }, []);
 
+  // SAFE SAVE
   useEffect(() => {
     try {
       localStorage.setItem('ibid_cart', JSON.stringify(cart));
-    } catch (error) {
-      console.warn('Unable to save cart to localStorage', error);
+    } catch (err) {
+      console.log('Cart save error', err);
     }
   }, [cart]);
 
+  const getId = (item) => item.id || item._id || item.slug;
+
   const addToCart = (book, quantity = 1) => {
     setCart((currentCart) => {
-      const existingItem = currentCart.find((item) => item.id === book.id);
+      const bookId = getId(book);
+
+      const existingItem = currentCart.find(
+        (item) => getId(item) === bookId
+      );
+
       if (existingItem) {
         return currentCart.map((item) =>
-          item.id === book.id ? { ...item, quantity: item.quantity + quantity } : item
+          getId(item) === bookId
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
         );
       }
 
@@ -38,13 +50,17 @@ export function CartProvider({ children }) {
   };
 
   const removeFromCart = (bookId) => {
-    setCart((currentCart) => currentCart.filter((item) => item.id !== bookId));
+    setCart((currentCart) =>
+      currentCart.filter((item) => getId(item) !== bookId)
+    );
   };
 
   const updateQuantity = (bookId, quantity) => {
     setCart((currentCart) =>
       currentCart.map((item) =>
-        item.id === bookId ? { ...item, quantity: Math.max(1, quantity) } : item
+        getId(item) === bookId
+          ? { ...item, quantity: Math.max(1, quantity) }
+          : item
       )
     );
   };
@@ -52,10 +68,24 @@ export function CartProvider({ children }) {
   const clearCart = () => setCart([]);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const subtotal = cart.reduce(
+    (sum, item) => sum + (item.price || 0) * item.quantity,
+    0
+  );
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, subtotal }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        cartCount,
+        subtotal,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

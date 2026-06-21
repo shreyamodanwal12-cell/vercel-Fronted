@@ -1,18 +1,34 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FaStar, FaShoppingCart, FaHeart } from 'react-icons/fa';
-import { books } from '../data/books';
-import { reviews } from '../data/reviews';
+import { apiFetch } from '../utils/api';
+
 import { useCart } from '../contexts/CartContext';
 
 export default function BookDetails() {
-  const { slug } = useParams();
-  const book = books.find((item) => item.slug === slug) || books[0];
-  const [activeTab, setActiveTab] = useState('description');
-  const { addToCart } = useCart();
-  const bookReviews = reviews.filter((review) => review.bookSlug === book.slug);
-  const relatedBooks = books.filter((item) => item.category === book.category && item.slug !== book.slug).slice(0, 3);
+const { id } = useParams();
 
+const [book, setBook] = useState(null);
+const [activeTab, setActiveTab] = useState('description');
+
+const { addToCart } = useCart();
+
+const bookReviews = [];
+const relatedBooks = [];
+
+useEffect(() => {
+  apiFetch(`/api/books/${id}`)
+    .then((data) => {
+      console.log("BOOK DETAILS =", data);
+      setBook(data);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+}, [id]);
+if (!book) {
+  return <h1>Loading...</h1>;
+}
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -50,7 +66,9 @@ export default function BookDetails() {
                   <p className="text-sm text-slate-500">Price</p>
                   <p className="text-3xl font-bold text-slate-900">${book.price.toFixed(2)}</p>
                 </div>
-                <p className="text-sm text-slate-400 line-through">${book.oldPrice.toFixed(2)}</p>
+                <p className="text-sm text-slate-400 line-through">
+  ${Number(book.old_price || 0).toFixed(2)}
+</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <button

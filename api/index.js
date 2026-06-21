@@ -1,3 +1,4 @@
+import { supabase } from './supabase.js'
 import express from 'express';
 import cors from 'cors';
 import serverless from 'serverless-http';
@@ -51,6 +52,24 @@ let db = {
 
 app.use(cors());
 app.use(express.json());
+app.get('/api/test-supabase', async (req, res) => {
+  const { data, error } = await supabase
+    .from('books')
+    .select('*')
+    .limit(1)
+
+  if (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    })
+  }
+
+  res.json({
+    success: true,
+    data,
+  })
+})
 
 function requireAdmin(req, res, next) {
   const authHeader = req.headers.authorization || '';
@@ -115,6 +134,7 @@ app.put('/api/books/:id', requireAdmin, (req, res) => {
   if (index === -1) {
     return res.status(404).json({ error: 'Book not found' });
   }
+  
   const updatedBook = { ...db.books[index], ...req.body, id: bookId };
   db.books[index] = updatedBook;
   res.json(updatedBook);

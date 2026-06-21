@@ -1,13 +1,17 @@
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { apiFetch } from '../utils/api';
+import Subcategories from './admin/Subcategories.jsx';
 
 const tabs = [
   { key: 'overview', label: 'Overview' },
   { key: 'books', label: 'Books' },
+  { key: 'categories', label: 'Categories' },
+  { key: 'subcategories', label: 'Subcategories' },
   { key: 'orders', label: 'Orders' },
   { key: 'users', label: 'Users' },
+  { key: 'vendors', label: 'Vendors' },
 ];
-
 const defaultBook = {
   title: '',
   slug: '',
@@ -19,9 +23,19 @@ const defaultBook = {
   cover: '',
   description: '',
 };
+const defaultCategory = {
+  title: '',
+  description: '',
+   image: '',
+};
 
+const defaultSubcategory = {
+  title: '',
+  category_id: '',
+};
 export default function AdminPanel() {
   const [token, setToken] = useState(localStorage.getItem('IBID_ADMIN_TOKEN') || '');
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,8 +43,16 @@ export default function AdminPanel() {
   const [books, setBooks] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+ const [vendors, setVendors] = useState([]); 
+ const [categories, setCategories] = useState([]);
+ const [subcategories, setSubcategories] = useState([]);
+ const [subcategoryForm, setSubcategoryForm] =
+  useState(defaultSubcategory);
+const [categoryForm, setCategoryForm] = useState(defaultCategory);
+const [categorySearch, setCategorySearch] = useState('');
   const [bookForm, setBookForm] = useState(defaultBook);
   const [editingBookId, setEditingBookId] = useState(null);
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
 
   useEffect(() => {
@@ -47,6 +69,9 @@ export default function AdminPanel() {
       loadData();
     }
   }, [activeTab]);
+  useEffect(() => {
+  fetchCategories();
+}, []);
 
   const loggedIn = Boolean(token);
 
@@ -63,12 +88,37 @@ export default function AdminPanel() {
       }
       if (activeTab === 'orders') {
         const ordersData = await apiFetch('/api/orders');
+        console.log(
+          "ORDERS API FULL =",
+          JSON.stringify(ordersData, null, 2)
+        );
+        console.log("FIRST ORDER =", ordersData[0]);
+        console.log("ORDER ITEMS =", ordersData[0]?.items);
+
         setOrders(ordersData);
       }
+      if (activeTab === 'Subcategories') {
+  const res = await apiFetch('/api/Subcategories');
+  console.log("SUBCATEGORIES =", res);
+}
       if (activeTab === 'users') {
         const usersData = await apiFetch('/api/users');
         setUsers(usersData);
       }
+if (activeTab === 'categories') {
+  const categoriesData = await apiFetch('/api/categories');
+  console.log('CATEGORIES =', categoriesData);
+  setCategories(categoriesData);
+}
+
+
+     if (activeTab === 'vendors') {
+  const vendorsData = await apiFetch('/api/vendors');
+
+  console.log("VENDORS =", vendorsData);
+
+  setVendors(vendorsData);
+}
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -76,22 +126,44 @@ export default function AdminPanel() {
     }
   };
 
+  //fetch categories for book form
+const fetchCategories = async () => {
+  try {
+    const res = await apiFetch('/api/categories');
+    setCategories(res || []);
+  } catch (err) {
+    setMessage(err.message);
+  }
+};
   const handleLogin = async (event) => {
     event.preventDefault();
-    
+
     // Validate both email and password are provided
     if (!loginData.email.trim() || !loginData.password.trim()) {
       setMessage('Email and password are required.');
       return;
     }
-    
+
     setLoading(true);
     setMessage('');
     try {
+      // const data = await apiFetch('/api/admin/login', {
+      //   method: 'POST',
+      //   body: { email: loginData.email.trim(), password: loginData.password },
+      // });
+      console.log('LOGIN DATA =', {
+        email: loginData.email,
+        password: loginData.password
+      })
+      //alert(JSON.stringify(loginData))
       const data = await apiFetch('/api/admin/login', {
         method: 'POST',
-        body: { email: loginData.email.trim(), password: loginData.password },
-      });
+        body: {
+          email: loginData.email.trim(),
+          password: loginData.password,
+        },
+      })
+
       setToken(data.token);
       setLoginData({ email: '', password: '' });
       setMessage('Logged in successfully.');
@@ -105,7 +177,7 @@ export default function AdminPanel() {
   const handleLogout = () => {
     setToken('');
     setDashboard(null);
-    setBooks([]);
+
     setOrders([]);
     setUsers([]);
     setBookForm(defaultBook);
@@ -117,7 +189,33 @@ export default function AdminPanel() {
   const handleBookFormChange = (field, value) => {
     setBookForm((current) => ({ ...current, [field]: value }));
   };
+const handleAddCategory = async (e) => {
+  e.preventDefault();
 
+  try {
+    if (editingCategoryId) {
+      await apiFetch(`/api/categories/${editingCategoryId}`, {
+        method: 'PUT',
+        body: categoryForm,
+      });
+
+      setMessage('Category updated successfully.');
+      setEditingCategoryId(null);
+    } else {
+      await apiFetch('/api/categories', {
+        method: 'POST',
+        body: categoryForm,
+      });
+
+      setMessage('Category added successfully.');
+    }
+
+    setCategoryForm(defaultCategory);
+    fetchCategories();
+  } catch (err) {
+    setMessage(err.message);
+  }
+};
   const handleSaveBook = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -128,7 +226,7 @@ export default function AdminPanel() {
         price: Number(bookForm.price),
         oldPrice: bookForm.oldPrice ? Number(bookForm.oldPrice) : Number(bookForm.price),
       };
-
+      console.log("BOOK PAYLOAD =", payload);
       if (editingBookId) {
         await apiFetch(`/api/books/${editingBookId}`, {
           method: 'PUT',
@@ -152,7 +250,27 @@ export default function AdminPanel() {
       setLoading(false);
     }
   };
+//add category
+const addCategory = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
+  try {
+    await apiFetch('/api/categories', {
+      method: 'POST',
+      body: categoryForm,
+    });
+
+    setCategoryForm(defaultCategory);
+    fetchCategories();
+    setMessage('Category created successfully');
+  } catch (err) {
+    setMessage(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+  
   const startEditBook = (book) => {
     setEditingBookId(book.id);
     setBookForm({
@@ -182,7 +300,46 @@ export default function AdminPanel() {
       setLoading(false);
     }
   };
+  
+  const updateVendor = async (id, updates) => {
+  console.log("UPDATE VENDOR =", id, updates);
 
+  try {
+    const response = await apiFetch(`/api/vendors/${id}`, {
+      method: 'PUT',
+      body: updates,
+    });
+
+    console.log("RESPONSE =", response);
+
+    const vendorData = await apiFetch('/api/vendors');
+    setVendors(vendorData);
+  } catch (error) {
+    console.log("ERROR =", error);
+  }
+}; 
+const deleteCategory = async (id) => {
+  if (!window.confirm('Delete category?')) return;
+
+  try {
+    await apiFetch(`/api/categories/${id}`, {
+      method: 'DELETE',
+    });
+
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+  } catch (err) {
+    setMessage(err.message);
+  }
+};
+const handleEditCategory = (cat) => {
+  setCategoryForm({
+    title: cat.title,
+    description: cat.description,
+    image: cat.image || "",
+  });
+
+  setEditingCategoryId(cat.id);
+};
   const overviewStats = useMemo(
     () => [
       { label: 'Books', value: dashboard?.totalBooks ?? '—' },
@@ -258,6 +415,125 @@ export default function AdminPanel() {
       </div>
 
       {message ? <div className="mb-6 rounded-3xl border border-orange-100 bg-orange-50 px-6 py-4 text-sm text-orange-700">{message}</div> : null}
+      {activeTab === 'categories' && (
+        <>
+      <div className="mb-8 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+  <h2 className="text-xl font-semibold text-slate-900">
+    Add Category
+  </h2>
+
+  <form
+    onSubmit={handleAddCategory}
+    className="mt-6 space-y-4"
+  >
+    <input
+      type="text"
+      placeholder="Category Title"
+      value={categoryForm.title}
+      onChange={(e) =>
+        setCategoryForm({
+          ...categoryForm,
+          title: e.target.value,
+        })
+      }
+      className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+    />
+
+    <input
+      type="text"
+      placeholder="Category Description"
+      value={categoryForm.description}
+      onChange={(e) =>
+        setCategoryForm({
+          ...categoryForm,
+          description: e.target.value,
+        })
+      }
+      className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+    />
+
+    <input
+      type="text"
+      placeholder="Image URL"
+      value={categoryForm.image}
+      onChange={(e) =>
+        setCategoryForm({
+          ...categoryForm,
+          image: e.target.value,
+        })
+      }
+      className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+    />
+
+    <button
+      type="submit"
+      className="rounded-full bg-orange-500 px-6 py-3 text-white"
+    >
+      Add Category
+    </button>
+  </form>
+</div>
+
+{/* search categories */}
+<input
+  type="text"
+  placeholder="Search category..."
+  value={categorySearch}
+  onChange={(e) => setCategorySearch(e.target.value)}
+  className="mb-4 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+/>
+<div className="mt-8 space-y-3">
+  {categories
+  .filter((cat) =>
+    cat.title
+      ?.toLowerCase()
+      .includes(categorySearch.toLowerCase())
+  )
+  .map((cat) => (
+    <div
+      key={cat.id}
+      className="flex items-center justify-between rounded-2xl border p-4"
+    >
+<div>
+  <h3 className="font-semibold">{cat.title}</h3>
+
+  <p className="text-sm text-slate-500">
+    {cat.description}
+  </p>
+
+  <p className="text-xs text-slate-400 mt-1">
+    Created: {cat.created_at
+      ? new Date(cat.created_at).toLocaleString()
+      : "N/A"}
+  </p>
+
+  <p className="text-xs text-slate-400">
+    Updated: {cat.updated_at
+      ? new Date(cat.updated_at).toLocaleString()
+      : "N/A"}
+  </p>
+</div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => handleEditCategory(cat)}
+          className="px-3 py-2 bg-blue-500 text-white rounded"
+        >
+          Edit
+        </button>
+
+        <button
+          onClick={() => deleteCategory(cat.id)}
+          className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+</>
+
+)}
 
       {activeTab === 'overview' && (
         <div className="grid gap-6 lg:grid-cols-4">
@@ -277,7 +553,7 @@ export default function AdminPanel() {
                       <h3 className="font-semibold text-slate-900">Order #{order.id}</h3>
                       <p className="text-sm text-slate-500">Status: {order.status} • Total: ${order.total.toFixed(2)}</p>
                     </div>
-                    <p className="text-sm font-semibold text-slate-900">{new Date(order.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm font-semibold text-slate-900">{new Date(order.created_at).toLocaleDateString()}</p>
                   </div>
                 ))
               ) : (
@@ -323,19 +599,64 @@ export default function AdminPanel() {
               <h2 className="text-xl font-semibold text-slate-900">Book details</h2>
               <form onSubmit={handleSaveBook} className="mt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input value={bookForm.title} onChange={(e) => handleBookFormChange('title', e.target.value)} placeholder="Title" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
-                  <input value={bookForm.author} onChange={(e) => handleBookFormChange('author', e.target.value)} placeholder="Author" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                  <input value={bookForm.title} onChange={(e) => handleBookFormChange('title', e.target.value)} placeholder="Title" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm  text-black outline-none focus:border-orange-500" />
+                  <input value={bookForm.author} onChange={(e) => handleBookFormChange('author', e.target.value)} placeholder="Author" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input value={bookForm.category} onChange={(e) => handleBookFormChange('category', e.target.value)} placeholder="Category" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
-                  <input value={bookForm.price} onChange={(e) => handleBookFormChange('price', e.target.value)} type="number" step="0.01" placeholder="Price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+
+                  <select
+  value={bookForm.category}
+  onChange={(e) =>
+    handleBookFormChange('category', e.target.value)
+  }
+  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500"
+>
+  <option value="">Select Category</option>
+
+  {categories?.map((cat) => (
+    <option key={cat.id} value={cat.title}>
+      {cat.title}
+    </option>
+  ))} 
+</select>
+  {/* <div className="mt-8 space-y-3">
+  {categories.map((cat) => (
+    <div
+      key={cat.id}
+      className="flex items-center justify-between rounded-2xl border p-4"
+    >
+      <div>
+        <h3 className="font-semibold">{cat.title}</h3>
+        <p className="text-sm text-slate-500">
+          {cat.description}
+        </p>
+      </div>
+<div className="flex gap-2">
+      <button
+        onClick={() => handleEditCategory(cat)}
+        className="px-3 py-2 bg-blue-500 text-white rounded"
+      >
+        Edit
+      </button>
+      <button
+        onClick={() => deleteCategory(cat.id)}
+        className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+      >
+        Delete
+      </button>
+    </div>
+    </div>
+  ))}
+</div>  */}
+                  <input value={bookForm.category} onChange={(e) => handleBookFormChange('category', e.target.value)} placeholder="Category" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
+                  <input value={bookForm.price} onChange={(e) => handleBookFormChange('price', e.target.value)} type="number" step="0.01" placeholder="Price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <input value={bookForm.oldPrice} onChange={(e) => handleBookFormChange('oldPrice', e.target.value)} type="number" step="0.01" placeholder="Old price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
-                  <input value={bookForm.badge} onChange={(e) => handleBookFormChange('badge', e.target.value)} placeholder="Badge" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                  <input value={bookForm.oldPrice} onChange={(e) => handleBookFormChange('oldPrice', e.target.value)} type="number" step="0.01" placeholder="Old price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
+                  <input value={bookForm.badge} onChange={(e) => handleBookFormChange('badge', e.target.value)} placeholder="Badge" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
-                <input value={bookForm.cover} onChange={(e) => handleBookFormChange('cover', e.target.value)} placeholder="Cover image URL" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
-                <textarea value={bookForm.description} onChange={(e) => handleBookFormChange('description', e.target.value)} placeholder="Description" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500" />
+                <input value={bookForm.cover} onChange={(e) => handleBookFormChange('cover', e.target.value)} placeholder="Cover image URL" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
+                <textarea value={bookForm.description} onChange={(e) => handleBookFormChange('description', e.target.value)} placeholder="Description" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 <div className="flex flex-wrap gap-3">
                   <button type="submit" className="rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600">
                     {editingBookId ? 'Update book' : 'Create book'}
@@ -357,30 +678,64 @@ export default function AdminPanel() {
             <div className="mt-6 space-y-4">
               {orders.length ? orders.map((order) => (
                 <div key={order.id} className="rounded-3xl border border-slate-100 p-4">
+
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <h3 className="font-semibold text-slate-900">Order #{order.id}</h3>
-                      <p className="text-sm text-slate-500">Status: {order.status} • Total: ${order.total.toFixed(2)}</p>
+                      <h3 className="font-semibold text-slate-900">
+                        Order #{order.id}
+                      </h3>
+
+                      <p className="text-sm text-slate-500">
+                        Status: {order.status || "Pending"} • Total: $
+                        {Number(order.total || 0).toFixed(2)}
+                      </p>
                     </div>
-                    <p className="text-sm text-slate-500">{new Date(order.createdAt).toLocaleString()}</p>
+
+                    <p className="text-sm text-slate-500">
+                      {order.created_at
+                        ? new Date(order.created_at).toLocaleString()
+                        : "No Date"}
+                    </p>
                   </div>
+
+                  {/* 👇 CLICK BUTTON ADDED HERE */}
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      onClick={() => navigate(`/admin/orders/${order.id}`)}
+                      className="rounded-full bg-orange-500 px-4 py-2 text-sm text-white hover:bg-orange-600"
+                    >
+                      View Order
+                    </button>
+                  </div>
+
+                  {/* ITEMS */}
                   <div className="mt-3 grid gap-2 rounded-3xl bg-slate-50 p-4 text-sm text-slate-700">
-                    {order.items.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between gap-3">
-                        <span>{item.title}</span>
-                        <span>{item.quantity} × ${item.price.toFixed(2)}</span>
-                      </div>
-                    ))}
+                    {(order.items || []).length ? (
+                      order.items.map((item, index) => (
+                        <div key={index} className="flex justify-between">
+                          <span>Book ID: {item.book_id}</span>
+                          <span>Qty: {item.quantity}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No Items</p>
+                    )}
                   </div>
+
                 </div>
               )) : (
-                <p className="text-sm text-slate-500">No orders yet.</p>
+                <p className="text-sm text-slate-500">
+                  No orders yet.
+                </p>
               )}
             </div>
           </div>
         </div>
       )}
-
+      {/* ------------subcategory------------ */}
+     {activeTab === 'subcategories' && (
+  <Subcategories />
+)}
       {activeTab === 'users' && (
         <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
           <h2 className="text-xl font-semibold text-slate-900">Users</h2>
@@ -398,7 +753,72 @@ export default function AdminPanel() {
             )}
           </div>
         </div>
+        
       )}
+      {activeTab === 'vendors' && (
+  <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+    <h2 className="text-xl font-semibold text-slate-900">
+      Vendors
+    </h2>
+
+    <div className="mt-6 grid gap-4">
+      {vendors.length ? (
+        vendors.map((vendor) => (
+          <div
+            key={vendor.id}
+            className="rounded-3xl border border-slate-100 bg-slate-50 p-4"
+          >
+            <h3 className="font-semibold text-slate-900">
+              {vendor.name}
+            </h3>
+
+            <p className="text-sm text-slate-500">
+              {vendor.email}
+            </p>
+
+            <p className="text-sm">
+              Approved:
+              {" "}
+              {vendor.is_approved ? "Yes" : "No"}
+            </p>
+
+            <p className="text-sm">
+              Active:
+              {" "}
+              {vendor.is_active ? "Yes" : "No"}
+            </p>
+            <div className="mt-3 flex gap-2">
+  <button
+    onClick={() =>
+      updateVendor(vendor.id, {
+        is_approved: !vendor.is_approved,
+      })
+    }
+    className="rounded-full bg-green-500 px-4 py-2 text-sm text-white"
+  >
+    {vendor.is_approved ? 'Unapprove' : 'Approve'}
+  </button>
+
+  <button
+    onClick={() =>
+      updateVendor(vendor.id, {
+        is_active: !vendor.is_active,
+      })
+    }
+    className="rounded-full bg-red-500 px-4 py-2 text-sm text-white"
+  >
+    {vendor.is_active ? 'Deactivate' : 'Activate'}
+  </button>
+</div>
+          </div>
+
+        ))
+      ) : (
+        <p>No vendors found.</p>
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 }

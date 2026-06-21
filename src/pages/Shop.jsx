@@ -1,5 +1,7 @@
-import { useMemo, useState } from 'react';
-import { books } from '../data/books';
+import { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '../utils/api';
+
+
 import ProductCard from '../components/common/ProductCard';
 import { categories } from '../data/categories';
 import { authors } from '../data/authors';
@@ -9,6 +11,7 @@ import { useCart } from '../contexts/CartContext';
 const sortOptions = ['Recommended', 'Price: Low to High', 'Price: High to Low', 'Rating'];
 
 export default function Shop() {
+  
   const [viewMode, setViewMode] = useState('grid');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [authorFilter, setAuthorFilter] = useState('All');
@@ -17,33 +20,79 @@ export default function Shop() {
   const [sortBy, setSortBy] = useState(sortOptions[0]);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
+   
+useEffect(() => {
+  apiFetch('/api/books')
+    .then((res) => {
+      console.log("FULL API RESPONSE:", res);
+
+      const booksData =
+        Array.isArray(res)
+          ? res
+          : Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.book)
+          ? res.book
+          : [];
+
+      setBooks(booksData);
+    })
+    .catch((err) => {
+      console.error("API ERROR:", err);
+      // ⚠️ only error case me empty karo
+    });
+}, []);
   const { addToCart } = useCart();
+  const [books, setBooks] = useState([]);
+console.log("books STATE SAMPLE:", books[0]);
+console.log("BOOK 1 =", books[0]);
+ const availableCategories = [
+  'All',
+  ...new Set((books || []).map((book) => book.category))
+];
 
-  const availableCategories = ['All', ...new Set(books.map((book) => book.category))];
-  const availableAuthors = ['All', ...new Set(books.map((book) => book.author))];
 
-  const filteredBooks = useMemo(() => {
-    return books
-      .filter((book) => (categoryFilter === 'All' ? true : book.category === categoryFilter))
-      .filter((book) => (authorFilter === 'All' ? true : book.author === authorFilter))
-      .filter((book) => (ratingFilter === 'All' ? true : book.rating >= Number(ratingFilter)))
-      .filter((book) => book.title.toLowerCase().includes(search.toLowerCase()) || book.author.toLowerCase().includes(search.toLowerCase()))
-      .sort((a, b) => {
-        if (sortBy === 'Price: Low to High') return a.price - b.price;
-        if (sortBy === 'Price: High to Low') return b.price - a.price;
-        if (sortBy === 'Rating') return b.rating - a.rating;
-        return b.reviews - a.reviews;
-      });
-  }, [categoryFilter, authorFilter, ratingFilter, search, sortBy]);
+ const availableAuthors = [
+  'All',
+  ...new Set((books || []).map((book) => book.author))
+];
 
+//   const filteredBooks = useMemo(() => {
+//     return books
+//       .filter((book) => (categoryFilter === 'All' ? true : book.category === categoryFilter))
+//       .filter((book) => (authorFilter === 'All' ? true : book.author === authorFilter))
+//       .filter((book) =>
+//   ratingFilter === 'All'
+//     ? true
+//     : Number(book.rating || 0) >= Number(ratingFilter)
+// )
+//       .filter((book) =>
+//   (book.title || "")
+//     .toLowerCase()
+//     .includes(search.toLowerCase()) ||
+//   (book.author || "")
+//     .toLowerCase()
+//     .includes(search.toLowerCase())
+// )
+//       .sort((a, b) => {
+//         if (sortBy === 'Price: Low to High') return a.price - b.price;
+//         if (sortBy === 'Price: High to Low') return b.price - a.price;
+//         if (sortBy === 'Rating') return b.rating - a.rating;
+//         return b.reviews - a.reviews;
+//       });
+//   }, [categoryFilter, authorFilter, ratingFilter, search, sortBy]);
+const filteredBooks = books;
   const paginatedBooks = filteredBooks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
+console.log("books DATA:", books);
+console.log("FILTERED:", filteredBooks);
+console.log("PAGINATED:", paginatedBooks);
+//const safeBook = book || [];
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.28em] text-orange-600">Shop</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">Books & comics marketplace</h1>
+          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">book & comics marketplace</h1>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <button
@@ -70,7 +119,7 @@ export default function Shop() {
               onChange={(e) => setSearch(e.target.value)}
               type="search"
               placeholder="Search title or author"
-              className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500"
+              className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 text-black outline-none focus:border-orange-500"
             />
           </div>
           <div>
@@ -92,7 +141,7 @@ export default function Shop() {
             <select
               value={authorFilter}
               onChange={(e) => setAuthorFilter(e.target.value)}
-              className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500"
+              className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 text-black outline-none focus:border-orange-500"
             >
               {availableAuthors.map((author) => (
                 <option key={author} value={author}>{author}</option>
@@ -104,7 +153,7 @@ export default function Shop() {
             <select
               value={ratingFilter}
               onChange={(e) => setRatingFilter(e.target.value)}
-              className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500"
+              className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 text-black outline-none focus:border-orange-500"
             >
               <option value="All">All ratings</option>
               <option value="4">4 stars & up</option>
@@ -117,7 +166,7 @@ export default function Shop() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-orange-500"
+              className="mt-4 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 text-black outline-none focus:border-orange-500"
             >
               {sortOptions.map((option) => (
                 <option key={option} value={option}>{option}</option>
@@ -142,13 +191,13 @@ export default function Shop() {
           {viewMode === 'grid' ? (
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {paginatedBooks.map((book) => (
-                <ProductCard key={book.slug} book={book} />
+                <ProductCard key={book.id} book={book} />
               ))}
             </div>
           ) : (
             <div className="space-y-6">
               {paginatedBooks.map((book) => (
-                <div key={book.slug} className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-soft">
+                <div key={book.id}className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-soft">
                   <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
                     <img src={book.cover} alt={book.title} className="h-72 w-full rounded-3xl object-cover" />
                     <div className="space-y-4">
@@ -164,15 +213,20 @@ export default function Shop() {
                       <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
                         <span>Rating {book.rating}</span>
                         <span>{book.reviews} reviews</span>
-                        <span>Pages {book.info.pages}</span>
+                        <span>Pages {book.pages}</span>
                       </div>
                       <div className="flex flex-wrap items-center justify-between gap-4">
                         <div>
                           <p className="text-3xl font-semibold text-slate-900">${book.price.toFixed(2)}</p>
-                          <p className="text-sm text-slate-400 line-through">${book.oldPrice.toFixed(2)}</p>
+                         <p className="text-sm text-slate-400 line-through">
+  ${Number(book.old_price || 0).toFixed(2)}
+</p>
                         </div>
                         <button
-                          onClick={() => addToCart(book)}
+                          onClick={() => addToCart({
+  ...book,
+  id: book.id || book._id || book.slug
+})}
                           className="rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-orange-600"
                         >
                           Add to cart
