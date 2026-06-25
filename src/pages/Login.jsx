@@ -15,10 +15,13 @@ export default function Login() {
     if (!email.trim() || !password) return;
 
     try {
-      const data = await apiFetch('/api/auth/login', {
-        method: 'POST',
-        body: { email: email.trim(), password },
-      });
+       const data = await apiFetch('/api/auth/login', {
+   method: 'POST',
+  body: {
+  email,
+  password
+}
+})
       console.log("LOGIN RESPONSE =", JSON.stringify(data, null, 2));
       localStorage.setItem('IBID_USER_TOKEN', data.token);
       localStorage.setItem('IBID_USER_NAME', data.user.name);

@@ -10,7 +10,7 @@ export default function OrderDetails() {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const res = await apiFetch(`/orders/${id}`);
+        const res = await apiFetch(`/api/orders/${id}`);
         setOrder(res);
       } catch (err) {
         console.log(err);

@@ -98,23 +98,33 @@ app.get('/api/test-supabase', async (req, res) => {
 
 // ---------------- BOOKS (READ ALL + SEARCH) ----------------
 app.get('/api/books', async (req, res) => {
-  const { q } = req.query
+  try {
+    console.log('BOOKS API HIT');
 
-  let query = supabase.from('books').select('*')
+    const { data, error } = await supabase
+      .from('books')
+      .select('*');
 
-  if (q) {
-    query = query.ilike('title', `%${q}%`)
+    console.log('BOOKS DATA =', data);
+    console.log('BOOKS ERROR =', error);
+
+    if (error) {
+      return res.status(500).json({
+        error: error.message,
+        fullError: error
+      });
+    }
+
+    res.json(data);
+
+  } catch (err) {
+    console.log('SERVER ERROR =', err);
+
+    res.status(500).json({
+      error: err.message
+    });
   }
-
-  const { data, error } = await query
-
-  
-  if (error) {
-    return res.status(500).json({ error: error.message })
-  }
-
-  res.json(data)
-})
+});
 
 // ---------------- SINGLE BOOK ----------------
 app.get('/api/books/:id', async (req, res) => {
@@ -140,11 +150,12 @@ if (!book.slug || book.slug.trim() === '') {
     .toLowerCase()
     .replace(/\s+/g, '-');
 }
-  const { data, error } = await supabase
-    .from('books')
-    console.log("BOOK SLUG =", book.slug)
-    .insert([book])
-    .select()
+ console.log("BOOK SLUG =", book.slug)
+
+const { data, error } = await supabase
+  .from('books')
+  .insert([book])
+  .select()
  console.log('SUPABASE ERROR =', error)
   console.log('SUPABASE DATA =', data)
   if (error) {
@@ -238,6 +249,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 })
 app.post('/api/auth/login', async (req, res) => {
+  console.log("LOGIN BODY =", req.body);
   try {
     const { email, password } = req.body
 
@@ -410,9 +422,15 @@ app.delete('/api/categories/:id', async (req, res) => {
 // ---------------- SUBCATEGORIES ----------------
 
 app.get('/api/subcategories', async (req, res) => {
-  const { data, error } = await supabase
-    .from('subcategories')
-    .select('*');
+ const { data, error } = await supabase
+  .from('subcategories')
+  .select(`
+    *,
+    categories (
+      id,
+      title
+    )
+  `);
 
   console.log('DATA =', data);
   console.log('ERROR =', error);

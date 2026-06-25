@@ -38,9 +38,9 @@ export default function Contact() {
             </div>
           </div>
         </div>
-        <form className="space-y-6 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+        <form className="space-y-6 rounded-[32px] text-black border border-slate-200 bg-white p-8 shadow-soft">
           <div>
-            <label className="block text-sm font-semibold text-slate-900">Name</label>
+            <label className="block text-sm font-semibold  text-slate-900">Name</label>
             <input type="text" placeholder="Your name" className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500" />
           </div>
           <div>

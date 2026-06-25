@@ -7,8 +7,9 @@ import { useCart } from '../contexts/CartContext';
 
 export default function BookDetails() {
 const { id } = useParams();
-
+console.log("URL ID =", id);
 const [book, setBook] = useState(null);
+const bookInfo = book?.info || {};
 const [activeTab, setActiveTab] = useState('description');
 
 const { addToCart } = useCart();
@@ -20,6 +21,7 @@ useEffect(() => {
   apiFetch(`/api/books/${id}`)
     .then((data) => {
       console.log("BOOK DETAILS =", data);
+       console.log("FULL BOOK =", JSON.stringify(data, null, 2));
       setBook(data);
     })
     .catch((err) => {
@@ -77,9 +79,30 @@ if (!book) {
                 >
                   <FaShoppingCart className="mr-2 inline" /> Add to Cart
                 </button>
-                <button className="rounded-full border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                  <FaHeart className="mr-2 inline" /> Add to Wishlist
-                </button>
+               <button
+  onClick={() => {
+    const existing =
+      JSON.parse(localStorage.getItem("wishlist")) || [];
+
+    const alreadyExists = existing.find(
+      (item) => item.id === book.id
+    );
+
+    if (!alreadyExists) {
+      existing.push(book);
+      localStorage.setItem(
+        "wishlist",
+        JSON.stringify(existing)
+      );
+    }
+
+    alert("Added to Wishlist");
+  }}
+  className="rounded-full border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+>
+  <FaHeart className="mr-2 inline" />
+  Add to Wishlist
+</button>
               </div>
             </div>
           </div>
@@ -98,14 +121,14 @@ if (!book) {
             </div>
             <div className="mt-8 text-slate-600">
               {activeTab === 'description' && <p>{book.description}</p>}
-              {activeTab === 'information' && (
-                <div className="space-y-3 text-sm text-slate-700">
-                  <p><strong>Pages:</strong> {book.info.pages}</p>
-                  <p><strong>Language:</strong> {book.info.language}</p>
-                  <p><strong>Publisher:</strong> {book.info.publisher}</p>
-                  <p><strong>ISBN:</strong> {book.info.isbn}</p>
-                </div>
-              )}
+             {activeTab === 'information' && (
+  <div className="space-y-3 text-sm text-slate-700">
+    <p><strong>Pages:</strong> {book.pages || "N/A"}</p>
+    <p><strong>Language:</strong> {book.language || "N/A"}</p>
+    <p><strong>Publisher:</strong> {book.publisher || "N/A"}</p>
+    <p><strong>ISBN:</strong> {book.isbn || "N/A"}</p>
+  </div>
+)}
               {activeTab === 'reviews' && (
                 <div className="space-y-4">
                   {bookReviews.length ? bookReviews.map((review) => (

@@ -25,9 +25,13 @@ export default function Register() {
 
     try {
       const data = await apiFetch('/api/auth/register', {
-        method: 'POST',
-        body: { name: name.trim(), email: email.trim(), password },
-      });
+  method: 'POST',
+ body: {
+  name,
+  email,
+  password
+}
+})
       localStorage.setItem('IBID_USER_TOKEN', data.token);
       localStorage.setItem('IBID_USER_NAME', data.user.name);
       setName('');

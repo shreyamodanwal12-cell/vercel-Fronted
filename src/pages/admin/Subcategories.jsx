@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import apiFetch from '../../api/api';
+
+import { apiFetch } from '../../utils/api';
 
 export default function Subcategories() {
  const [subcategories, setSubcategories] = useState([]);
@@ -7,8 +8,9 @@ export default function Subcategories() {
  
   const loadSubcategories = async () => {
     try {
+      console.log('Loading subcategories...');
       const data = await apiFetch('/api/subcategories');
-       console.log('SUBCATEGORY DATA =', data);
+     console.log(JSON.stringify(data, null, 2));
       setSubcategories(data);
     } catch (error) {
       console.error(error);
@@ -36,7 +38,7 @@ console.log(subcategories);
           {subcategories.map((sub) => (
             <tr key={sub.id}>
               <td>{sub.id}</td>
-              <td>{sub.category_id}</td>
+             <td>{sub.category_id}</td>
               <td>{sub.title}</td>
             </tr>
           ))}

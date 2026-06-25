@@ -22,6 +22,11 @@ const defaultBook = {
   badge: '',
   cover: '',
   description: '',
+
+  pages: '',
+  language: '',
+  publisher: '',
+  isbn: '',
 };
 const defaultCategory = {
   title: '',
@@ -222,10 +227,11 @@ const handleAddCategory = async (e) => {
     setMessage('');
     try {
       const payload = {
-        ...bookForm,
-        price: Number(bookForm.price),
-        oldPrice: bookForm.oldPrice ? Number(bookForm.oldPrice) : Number(bookForm.price),
-      };
+  ...bookForm,
+  price: Number(bookForm.price),
+  oldPrice: Number(bookForm.oldPrice || 0),
+  pages: Number(bookForm.pages || 0),
+};
       console.log("BOOK PAYLOAD =", payload);
       if (editingBookId) {
         await apiFetch(`/api/books/${editingBookId}`, {
@@ -272,20 +278,25 @@ const addCategory = async (e) => {
 };
   
   const startEditBook = (book) => {
-    setEditingBookId(book.id);
-    setBookForm({
-      title: book.title,
-      slug: book.slug,
-      author: book.author,
-      category: book.category,
-      price: book.price,
-      oldPrice: book.oldPrice,
-      badge: book.badge,
-      cover: book.cover,
-      description: book.description,
-    });
-  };
+  setEditingBookId(book.id);
 
+  setBookForm({
+    title: book.title || '',
+    slug: book.slug || '',
+    author: book.author || '',
+    category: book.category || '',
+    price: book.price || '',
+    oldPrice: book.oldPrice || '',
+    badge: book.badge || '',
+    cover: book.cover || '',
+    description: book.description || '',
+
+    pages: book.pages || '',
+    language: book.language || '',
+    publisher: book.publisher || '',
+    isbn: book.isbn || '',
+  });
+};
   const handleDeleteBook = async (bookId) => {
     if (!window.confirm('Delete this book?')) return;
     setLoading(true);
@@ -600,6 +611,7 @@ const handleEditCategory = (cat) => {
               <form onSubmit={handleSaveBook} className="mt-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <input value={bookForm.title} onChange={(e) => handleBookFormChange('title', e.target.value)} placeholder="Title" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm  text-black outline-none focus:border-orange-500" />
+
                   <input value={bookForm.author} onChange={(e) => handleBookFormChange('author', e.target.value)} placeholder="Author" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -658,6 +670,46 @@ const handleEditCategory = (cat) => {
                 <input value={bookForm.cover} onChange={(e) => handleBookFormChange('cover', e.target.value)} placeholder="Cover image URL" className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 <textarea value={bookForm.description} onChange={(e) => handleBookFormChange('description', e.target.value)} placeholder="Description" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 <div className="flex flex-wrap gap-3">
+                  <div className="grid gap-4 sm:grid-cols-2">
+  <input
+    value={bookForm.pages || ""}
+    onChange={(e) =>
+      handleBookFormChange('pages', e.target.value)
+    }
+    type="number"
+    placeholder="Pages"
+    className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
+  />
+
+  <input
+    value={bookForm.language || ""}
+    onChange={(e) =>
+      handleBookFormChange('language', e.target.value)
+    }
+    placeholder="Language"
+    className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
+  />
+</div>
+
+<div className="grid gap-4 sm:grid-cols-2">
+  <input
+    value={bookForm.publisher || ""}
+    onChange={(e) =>
+      handleBookFormChange('publisher', e.target.value)
+    }
+    placeholder="Publisher"
+    className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
+  />
+
+  <input
+    value={bookForm.isbn || ""}
+    onChange={(e) =>
+      handleBookFormChange('isbn', e.target.value)
+    }
+    placeholder="ISBN"
+    className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
+  />
+</div>
                   <button type="submit" className="rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600">
                     {editingBookId ? 'Update book' : 'Create book'}
                   </button>
