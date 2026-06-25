@@ -2,11 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 import express from 'express'
-<<<<<<< HEAD
 //import cors from 'cors'
-=======
-import cors from 'cors'
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
 import { createClient } from '@supabase/supabase-js'
 
 const app = express()
@@ -28,11 +24,8 @@ app.use(express.json())
 const PORT = process.env.PORT || 4000
 
 // ---------------- SUPABASE ----------------
-<<<<<<< HEAD
 console.log("SUPABASE_URL =", process.env.SUPABASE_URL)
 console.log("KEY EXISTS =", !!process.env.SUPABASE_SERVICE_ROLE_KEY)
-=======
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -45,7 +38,6 @@ app.post('/api/categories', async (req, res) => {
 
     const { data, error } = await supabase
       .from('categories')
-<<<<<<< HEAD
       .insert([
   {
     ...req.body,
@@ -53,9 +45,6 @@ app.post('/api/categories', async (req, res) => {
     updated_at: new Date().toISOString(),
   },
 ])
-=======
-      .insert([req.body])
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
       .select();
 
     console.log('CATEGORY DATA =', data);
@@ -109,7 +98,6 @@ app.get('/api/test-supabase', async (req, res) => {
 
 // ---------------- BOOKS (READ ALL + SEARCH) ----------------
 app.get('/api/books', async (req, res) => {
-<<<<<<< HEAD
   try {
     console.log('BOOKS API HIT');
 
@@ -138,26 +126,6 @@ app.get('/api/books', async (req, res) => {
   }
 });
 
-=======
-  const { q } = req.query
-
-  let query = supabase.from('books').select('*')
-
-  if (q) {
-    query = query.ilike('title', `%${q}%`)
-  }
-
-  const { data, error } = await query
-
-  
-  if (error) {
-    return res.status(500).json({ error: error.message })
-  }
-
-  res.json(data)
-})
-
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
 // ---------------- SINGLE BOOK ----------------
 app.get('/api/books/:id', async (req, res) => {
   const { data, error } = await supabase
@@ -182,20 +150,12 @@ if (!book.slug || book.slug.trim() === '') {
     .toLowerCase()
     .replace(/\s+/g, '-');
 }
-<<<<<<< HEAD
  console.log("BOOK SLUG =", book.slug)
 
 const { data, error } = await supabase
   .from('books')
   .insert([book])
   .select()
-=======
-  const { data, error } = await supabase
-    .from('books')
-    console.log("BOOK SLUG =", book.slug)
-    .insert([book])
-    .select()
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
  console.log('SUPABASE ERROR =', error)
   console.log('SUPABASE DATA =', data)
   if (error) {
@@ -289,10 +249,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 })
 app.post('/api/auth/login', async (req, res) => {
-<<<<<<< HEAD
   console.log("LOGIN BODY =", req.body);
-=======
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
   try {
     const { email, password } = req.body
 
@@ -407,7 +364,6 @@ app.put('/api/vendors/:id/approve', async (req, res) => {
 
   res.json(data[0]);
 });
-<<<<<<< HEAD
 // // categories api4
 // app.post('/api/categories', async (req, res) => {
 //   const { data, error } = await supabase
@@ -452,43 +408,6 @@ app.put('/api/categories/:id', async (req, res) => {
 });
 
 
-=======
-// categories api4
-app.post('/api/categories', async (req, res) => {
-  const { data, error } = await supabase
-    .from('categories')
-    .insert([req.body])
-    .select();
-
-  if (error) return res.status(500).json({ error: error.message });
-
-  res.json(data[0]);
-});
-
-app.get('/api/categories', async (req, res) => {
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*');
-
-  if (error) return res.status(500).json({ error: error.message });
-
-  res.json(data);
-});
-
-app.put('/api/categories/:id', async (req, res) => {
-  const { data, error } = await supabase
-    .from('categories')
-    .update(req.body)
-    .eq('id', req.params.id)
-    .select();
-
-  if (error) return res.status(500).json({ error: error.message });
-
-  res.json(data[0]);
-});
-
-
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
 app.delete('/api/categories/:id', async (req, res) => {
   const { error } = await supabase
     .from('categories')
@@ -500,10 +419,9 @@ app.delete('/api/categories/:id', async (req, res) => {
   res.json({ success: true });
 });
 //order api
-app.post('/api/orders', async (req, res) => {
-  console.log('BODY =', req.body)
+// app.post('/api/orders', async (req, res) => {
+//   console.log('BODY =', req.body)
 
-<<<<<<< HEAD
 // ---------------- SUBCATEGORIES ----------------
 
 app.get('/api/subcategories', async (req, res) => {
@@ -526,49 +444,10 @@ app.get('/api/subcategories', async (req, res) => {
       fullError: error,
     });
   }
-=======
-  try {
-   const { user_id, total, items } = req.body;
-    const { data, error } = await supabase
-      .from('orders')
-      .insert([
-        {
-           user_id: user_id || null,
-          total,
-          items,
-          status: 'Pending'
-          
-        }
-      ])
-      .select()
-
-    if (error) {
-      return res.status(500).json({
-        error: error.message
-      })
-    }
-
-    res.status(201).json(data[0])
-
-  } catch (err) {
-    res.status(500).json({
-      error: err.message
-    })
-  }
-})
-// GET ALL ORDERS
-app.get('/api/orders', async (req, res) => {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*');
-
-  if (error) return res.status(500).json({ error: error.message });
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
 
   res.json(data);
 });
 
-<<<<<<< HEAD
 app.post('/api/subcategories', async (req, res) => {
   const { data, error } = await supabase
     .from('subcategories')
@@ -668,8 +547,6 @@ app.get('/api/orders', async (req, res) => {
   res.json(data);
 });
 
-=======
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
 
 // GET SINGLE ORDER
 app.get('/api/orders/:id', async (req, res) => {

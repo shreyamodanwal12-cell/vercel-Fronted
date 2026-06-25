@@ -8,8 +8,4 @@ createRoot(document.getElementById('root')).render(
  <CartProvider>
   <App />
 </CartProvider>
-<<<<<<< HEAD
 )
-=======
-)
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea

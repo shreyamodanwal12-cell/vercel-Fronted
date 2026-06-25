@@ -1,11 +1,7 @@
 export default function CategoryCard({ category }) {
    console.log(category);
   return (
-<<<<<<< HEAD
     <article className="group overflow-hidden rounded-[28px] border border-slate-150 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-xl">
-=======
-    <article className="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-xl">
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
   
  <p style={{ color: "red", fontSize: "20px" }}>
   {category.image}
@@ -16,11 +12,7 @@ export default function CategoryCard({ category }) {
   className="h-full w-full object-cover"
   onError={(e) => {
     console.log("Image not found:", category.image);
-<<<<<<< HEAD
     e.target.src = "/images/1.jpg";
-=======
-    e.target.src = "/images/coff.jpg";
->>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
   }}
 />
       <div className="p-6">
