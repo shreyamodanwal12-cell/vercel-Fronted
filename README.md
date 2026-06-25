@@ -32,7 +32,7 @@ This project now includes a backend server and an admin panel.
 2. Create a Vercel account and import this repository.
 3. Set the Vercel project root to the repository root.
 4. In Vercel environment variables, add:
-   - `VITE_API_BASE_URL` = `https://your-backend-url.com`
+   - `VITE_API_BASE_URL = https://YOUR-ACTUAL-BACKEND-URL.vercel.app`
 5. Vercel build command: `npm run build`
 6. Output directory: `dist`
 

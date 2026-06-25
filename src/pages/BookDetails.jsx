@@ -7,11 +7,18 @@ import { useCart } from '../contexts/CartContext';
 
 export default function BookDetails() {
 const { id } = useParams();
+<<<<<<< HEAD
 console.log("URL ID =", id);
 const [book, setBook] = useState(null);
 const bookInfo = book?.info || {};
 const [activeTab, setActiveTab] = useState('description');
 
+=======
+
+const [book, setBook] = useState(null);
+const [activeTab, setActiveTab] = useState('description');
+
+>>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
 const { addToCart } = useCart();
 
 const bookReviews = [];
@@ -21,7 +28,10 @@ useEffect(() => {
   apiFetch(`/api/books/${id}`)
     .then((data) => {
       console.log("BOOK DETAILS =", data);
+<<<<<<< HEAD
        console.log("FULL BOOK =", JSON.stringify(data, null, 2));
+=======
+>>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
       setBook(data);
     })
     .catch((err) => {

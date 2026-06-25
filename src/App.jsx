@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿﻿import Books from "./components/Book"
+=======
+﻿import Books from "./components/Book"
+>>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";

@@ -873,4 +873,4 @@ const handleEditCategory = (cat) => {
 )}
     </div>
   );
-}
+} 

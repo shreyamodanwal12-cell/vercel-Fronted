@@ -15,6 +15,7 @@ export default function Login() {
     if (!email.trim() || !password) return;
 
     try {
+<<<<<<< HEAD
        const data = await apiFetch('/api/auth/login', {
    method: 'POST',
   body: {
@@ -22,6 +23,12 @@ export default function Login() {
   password
 }
 })
+=======
+      const data = await apiFetch('/api/auth/login', {
+        method: 'POST',
+        body: { email: email.trim(), password },
+      });
+>>>>>>> 207c6875c5f7fac0f61198e82cfba31ecfb76bea
       console.log("LOGIN RESPONSE =", JSON.stringify(data, null, 2));
       localStorage.setItem('IBID_USER_TOKEN', data.token);
       localStorage.setItem('IBID_USER_NAME', data.user.name);
