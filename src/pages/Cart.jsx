@@ -44,7 +44,7 @@ export default function Cart() {
 
                   <div className="flex justify-between">
                     <div>
-                      <h2 className="text-xl font-semibold">{item.title}</h2>
+                      <h2 className="text-xl font-semibold font-bold text-black">{item.title}</h2>
                       <p className="text-sm text-slate-500">by {item.author}</p>
                     </div>
 
@@ -56,7 +56,7 @@ export default function Cart() {
                     </button>
                   </div>
 
-                  <div className="mt-4 flex gap-4 text-sm text-slate-600">
+                  <div className="mt-4 flex font-bold gap-4 text-sm text-slate-600">
                     <span>Qty: {item.quantity}</span>
                     <span>Price: ${item.price}</span>
                     <span>Category: {item.category}</span>
@@ -67,7 +67,7 @@ export default function Cart() {
                       onClick={() =>
                         updateQuantity(item.id || item._id || item.slug, item.quantity - 1)
                       }
-                      className="px-3 py-1 border"
+                      className="px-3 py-1 border border-black text-black text-2xl font-bold"
                     >
                       -
                     </button>
@@ -78,7 +78,7 @@ export default function Cart() {
                       onClick={() =>
                         updateQuantity(item.id || item._id || item.slug, item.quantity + 1)
                       }
-                      className="px-3 py-1 border"
+                      className="px-3 py-1 border border-black text-black text-2xl font-bold"
                     >
                       +
                     </button>
