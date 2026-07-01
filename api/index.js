@@ -146,6 +146,84 @@ app.delete('/api/books/:id', requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+//add product
+console.log("PRODUCT ROUTES LOADED");
+app.get('/api/products', async (req, res) => {
+  
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories(title),
+      subcategories(title)
+    `);
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+
+  res.json(data);
+});
+
+
+app.post('/api/products', async (req, res) => {
+  console.log("POST PRODUCTS API HIT");
+  const { data, error } = await supabase
+    .from('products')
+    .insert([
+      {
+        ...req.body,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ])
+    .select();
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+
+  res.json(data[0]);
+});
+
+
+app.put('/api/products/:id', async (req, res) => {
+  const { data, error } = await supabase
+    .from('products')
+    .update({
+      ...req.body,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', req.params.id)
+    .select();
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+
+  res.json(data[0]);
+});
+
+app.delete('/api/products/:id', async (req, res) => {
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', req.params.id);
+
+  if (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
+
+  res.json({ success: true });
+});
 // Categories endpoint
 app.get('/api/categories', (req, res) => {
   res.json(db.categories);
@@ -239,5 +317,5 @@ app.post('/api/auth/login', (req, res) => {
     user: { id: user.id, name: user.name, email: user.email, role: user.role } 
   });
 });
-
+console.log("API FILE RUNNING");
 export default serverless(app);

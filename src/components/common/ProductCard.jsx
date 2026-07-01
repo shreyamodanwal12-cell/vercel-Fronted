@@ -6,7 +6,10 @@ export default function ProductCard({ book }) {
   console.log("PRODUCT CARD BOOK =", book);
   const { addToCart } = useCart();
 
-  const image = book.cover || book.image || '/placeholder.jpg';
+const image = book.image
+  ? `/images/${book.image}`
+  : "/placeholder.jpg";
+  console.log("PRODUCT IMAGE =", book.image);
   const oldPrice = book.oldPrice || book.old_price || 0;
 
   return (

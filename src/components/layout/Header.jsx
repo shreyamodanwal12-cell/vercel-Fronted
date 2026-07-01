@@ -11,6 +11,7 @@ const navItems = [
   { label: 'Blog', path: '/blog' },
   { label: 'Admin', path: '/admin' },
   { label: 'Contact', path: '/contact' },
+  { label: 'Vendor', path: '/vendor/login' },
 ];
 
 export default function Header() {

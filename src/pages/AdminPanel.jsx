@@ -6,8 +6,10 @@ import Subcategories from './admin/Subcategories.jsx';
 const tabs = [
   { key: 'overview', label: 'Overview' },
   { key: 'books', label: 'Books' },
+  { key: 'products', label: 'Add Product' },
   { key: 'categories', label: 'Categories' },
   { key: 'subcategories', label: 'Subcategories' },
+ 
   { key: 'orders', label: 'Orders' },
   { key: 'users', label: 'Users' },
   { key: 'vendors', label: 'Vendors' },
@@ -38,6 +40,19 @@ const defaultSubcategory = {
   title: '',
   category_id: '',
 };
+
+const defaultProduct = {
+  title: "",
+  slug: "",
+ category_id: "",
+subcategory_id: "",
+  price: "",
+  oldPrice: "",
+  stock: "",
+  sku: "",
+  image: "",
+  description: "",
+};
 export default function AdminPanel() {
   const [token, setToken] = useState(localStorage.getItem('IBID_ADMIN_TOKEN') || '');
   const navigate = useNavigate();
@@ -51,15 +66,22 @@ export default function AdminPanel() {
  const [vendors, setVendors] = useState([]); 
  const [categories, setCategories] = useState([]);
  const [subcategories, setSubcategories] = useState([]);
+ const [products, setProducts] = useState([]);
  const [subcategoryForm, setSubcategoryForm] =
   useState(defaultSubcategory);
 const [categoryForm, setCategoryForm] = useState(defaultCategory);
 const [categorySearch, setCategorySearch] = useState('');
   const [bookForm, setBookForm] = useState(defaultBook);
+  const [productForm, setProductForm] = useState(defaultProduct);
   const [editingBookId, setEditingBookId] = useState(null);
+ 
+
+const [editingProductId, setEditingProductId] = useState(null);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
-
+const filteredSubcategories = subcategories.filter(
+  (sub) => String(sub.category_id) === String(productForm.category_id)
+);
   useEffect(() => {
     if (token) {
       localStorage.setItem('IBID_ADMIN_TOKEN', token);
@@ -91,6 +113,10 @@ const [categorySearch, setCategorySearch] = useState('');
         const booksData = await apiFetch('/api/books');
         setBooks(booksData);
       }
+      if (activeTab === 'products') {
+  const productsData = await apiFetch('/api/products');
+  setProducts(productsData);
+}
       if (activeTab === 'orders') {
         const ordersData = await apiFetch('/api/orders');
         console.log(
@@ -110,13 +136,24 @@ const [categorySearch, setCategorySearch] = useState('');
         const usersData = await apiFetch('/api/users');
         setUsers(usersData);
       }
-if (activeTab === 'categories') {
+if (
+  activeTab === 'categories' ||
+  activeTab === 'products'
+) {
   const categoriesData = await apiFetch('/api/categories');
-  console.log('CATEGORIES =', categoriesData);
+
+  console.log("CATEGORIES =", categoriesData);
+
   setCategories(categoriesData);
 }
 
+if (activeTab === 'subcategories' || activeTab === 'products') {
+  const subcategoriesData = await apiFetch('/api/subcategories');
 
+  console.log("SUBCATEGORIES =", subcategoriesData);
+
+  setSubcategories(subcategoriesData);
+}
      if (activeTab === 'vendors') {
   const vendorsData = await apiFetch('/api/vendors');
 
@@ -256,6 +293,101 @@ const handleAddCategory = async (e) => {
       setLoading(false);
     }
   };
+
+const handleSaveProduct = async (e) => {
+  e.preventDefault();
+
+  try {
+    const payload = {
+  title: productForm.title,
+  //slug: productForm.slug,
+
+  category_id: Number(productForm.category_id),
+
+  subcategory_id: productForm.subcategory_id
+    ? Number(productForm.subcategory_id)
+    : null,
+
+  description: productForm.description,
+
+  price: Number(productForm.price),
+
+  old_price: Number(productForm.oldPrice || 0),
+
+  stock: Number(productForm.stock || 0),
+
+  sku: productForm.sku,
+
+  image: productForm.image,
+    };
+
+    console.log("PRODUCT PAYLOAD =", payload);
+
+    if (editingProductId) {
+      await apiFetch(`/api/products/${editingProductId}`, {
+        method: "PUT",
+        body: payload,
+      });
+
+      setMessage("Product updated successfully");
+    } else {
+      await apiFetch("/api/products", {
+        method: "POST",
+        body: payload,
+      });
+
+      setMessage("Product created successfully");
+    }
+
+
+
+
+    const data = await apiFetch("/api/products");
+    setProducts(data);
+
+    setProductForm(defaultProduct);
+    setEditingProductId(null);
+
+  } catch (err) {
+    setMessage(err.message);
+  } 
+};
+
+//-----------------handle edit product
+    const handleEditProduct = (product) => {
+  setEditingProductId(product.id);
+
+  setProductForm({
+    title: product.title || "",
+    slug: product.slug || "",
+    category_id: product.category_id || "",
+    subcategory_id: product.subcategory_id || "",
+    description: product.description || "",
+    price: product.price || "",
+    oldPrice: product.old_price || "",
+    stock: product.stock || "",
+    sku: product.sku || "",
+    image: product.image || "",
+  });
+};
+
+//-------------------------------handle delete product
+const handleDeleteProduct = async (id) => {
+  if (!window.confirm("Delete this product?")) return;
+
+  try {
+    await apiFetch(`/api/products/${id}`, {
+      method: "DELETE",
+    });
+
+    const data = await apiFetch("/api/products");
+    setProducts(data);
+
+    setMessage("Product deleted successfully");
+  } catch (err) {
+    setMessage(err.message);
+  }
+};
 //add category
 const addCategory = async (e) => {
   e.preventDefault();
@@ -722,6 +854,194 @@ const handleEditCategory = (cat) => {
           </div>
         </div>
       )}
+{activeTab === "products" && (
+  <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+    <h2 className="text-2xl text-black  font-semibold mb-6">
+      Add Product
+    </h2>
+
+    <form
+  onSubmit={handleSaveProduct}
+  className="space-y-4"
+>
+
+      <input
+        type="text"
+        placeholder="Product Title"
+        value={productForm.title}
+        onChange={(e) =>
+          setProductForm({
+            ...productForm,
+            title: e.target.value,
+          })
+        }
+        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+      />
+
+<select
+  value={productForm.category_id}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      category_id: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+>
+  <option value="">Select Category</option>
+
+  {categories.map((cat) => (
+    <option key={cat.id} value={cat.id}>
+      {cat.title}
+    </option>
+  ))}
+</select>
+<select
+  value={productForm.subcategory_id}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      subcategory_id: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+>
+  <option value="">Select Subcategory</option>
+
+  {filteredSubcategories.map((sub) => (
+    <option key={sub.id} value={sub.id}>
+      {sub.title}
+    </option>
+  ))}
+</select>
+      <textarea
+        placeholder="Description"
+        value={productForm.description}
+        onChange={(e) =>
+          setProductForm({
+            ...productForm,
+            description: e.target.value,
+          })
+        }
+        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+      />
+<input
+  type="text"
+  placeholder="SKU"
+  value={productForm.sku}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      sku: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+/>
+
+<input
+  type="number"
+  placeholder="Stock"
+  value={productForm.stock}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      stock: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+/>
+
+<input
+  type="text"
+  placeholder="Image URL"
+  value={productForm.image}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      image: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+/>
+      <input
+        type="number"
+        placeholder="Price"
+        value={productForm.price}
+        onChange={(e) =>
+          setProductForm({
+            ...productForm,
+            price: e.target.value,
+          })
+        }
+        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+      />
+
+      <input
+        type="number"
+        placeholder="Old Price"
+        value={productForm.oldPrice}
+        onChange={(e) =>
+          setProductForm({
+            ...productForm,
+            oldPrice: e.target.value,
+          })
+        }
+        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+      />
+
+      <button
+        type="submit"
+        className="rounded-full bg-orange-500 px-6 py-3 text-white"
+      >
+       {editingProductId ? "Update Product" : "Save Product"}
+      </button>
+
+    </form>
+
+    <div className="mt-8 space-y-4">
+  <h2 className="text-xl text-black font-semibold ">Products</h2>
+
+  {products.map((product) => (
+    <div
+      key={product.id}
+      className="rounded-2xl border p-4 flex justify-between items-center"
+    >
+      <div>
+        <h3 className="font-semibold text-blak">{product.title}</h3>
+
+        <p className="text-sm text-gray-500">
+          ₹{product.price}
+        </p>
+
+        <p className="text-sm text-black text-gray-500">
+          {product.categories?.title}
+        </p>
+
+        <p className="text-sm text-gray-500">
+          {product.subcategories?.title}
+        </p>
+      </div>
+
+      <div className="flex gap-2">
+      <button
+  onClick={() => handleEditProduct(product)}
+  className="px-4 py-2 bg-blue-500 text-white rounded"
+>
+  Edit
+</button>
+
+      <button
+  onClick={() => handleDeleteProduct(product.id)}
+  className="px-4 py-2 bg-red-500 text-white rounded"
+>
+  Delete
+</button>
+      </div>
+    </div>
+  ))}
+</div>
+  </div>
+)}
 
       {activeTab === 'orders' && (
         <div className="space-y-6">

@@ -26,6 +26,11 @@ import BlogListingPage from "./pages/Blog";
 import SingleBlogPage from "./pages/BlogPost";
 import AboutUsPage from "./pages/About";
 import ContactUsPage from "./pages/Contact";
+import VendorRegister from "./pages/vendor/VendorRegister";
+import VendorLogin from "./pages/vendor/VendorLogin";
+import VendorDashboard from "./pages/vendor/VendorDashboard";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import VendorApproval from "./pages/admin/VendorApproval";
 
 function App() {
   return (
@@ -53,6 +58,17 @@ function App() {
             <Route path="/about" element={<AboutUsPage />} />
             <Route path="/contact" element={<ContactUsPage />} />
             <Route path="/books" element={<Books />} />
+            <Route path="/vendor/register" element={<VendorRegister />} />
+            <Route path="/vendor/login" element={<VendorLogin />} />
+<Route
+  path="/vendor/dashboard"
+  element={
+    <ProtectedRoute>
+      <VendorDashboard />
+    </ProtectedRoute>
+  }
+/>
+            <Route path="/admin/vendors/:id" element={<VendorApproval />} />
           </Routes>
           
         </AnimatePresence>

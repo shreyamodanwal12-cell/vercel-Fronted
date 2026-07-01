@@ -22,9 +22,30 @@ const [editBook, setEditBook] = useState(null)
   }, [])
 
   return (
+    
     <div>
       <h2>Books</h2>
+{editBook && (
+  <div style={{ marginBottom: 20 }}>
+    <h3>Edit Book</h3>
 
+    <input
+      value={editBook.title}
+      onChange={(e) =>
+        setEditBook({ ...editBook, title: e.target.value })
+      }
+    />
+
+    <input
+      value={editBook.author}
+      onChange={(e) =>
+        setEditBook({ ...editBook, author: e.target.value })
+      }
+    />
+
+    <button onClick={updateBook}>Update</button>
+  </div>
+)}
       {books.map((b) => (
         <div key={b.id} style={{ border: "1px solid black", margin: 10, padding: 10 }}>
           <h3>{b.title}</h3>

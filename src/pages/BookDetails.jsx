@@ -18,10 +18,9 @@ const bookReviews = [];
 const relatedBooks = [];
 
 useEffect(() => {
-  apiFetch(`/api/books/${id}`)
+  apiFetch(`/api/products/${id}`)
     .then((data) => {
-      console.log("BOOK DETAILS =", data);
-       console.log("FULL BOOK =", JSON.stringify(data, null, 2));
+      console.log("PRODUCT DETAILS =", data);
       setBook(data);
     })
     .catch((err) => {
@@ -31,6 +30,11 @@ useEffect(() => {
 if (!book) {
   return <h1>Loading...</h1>;
 }
+const image = book.cover
+  ? book.cover
+  : book.image
+  ? `/images/${book.image}`
+  : "/placeholder.jpg";
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -46,12 +50,19 @@ if (!book) {
 
       <div className="grid gap-10 lg:grid-cols-[420px_minmax(0,1fr)]">
         <div className="space-y-6 rounded-[32px] border border-slate-200 bg-white p-6 shadow-soft">
-          <img src={book.cover} alt={book.title} className="h-[520px] w-full rounded-[32px] object-cover" />
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[book.cover, book.cover, book.cover].map((src, index) => (
-              <img key={index} src={src} alt={book.title} className="h-28 w-full rounded-3xl object-cover" />
-            ))}
-          </div>
+
+          
+          <img
+  src={image}
+  alt={book.title}
+className="h-[520px] w-full rounded-[32px] object-cover" />
+          <div className="mt-4">
+  {/* <img
+    src={image}
+    alt={book.title}
+    className="h-28 w-28 rounded-2xl object-cover"
+  /> */}
+</div>
         </div>
 
         <div className="space-y-8">

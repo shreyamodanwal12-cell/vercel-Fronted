@@ -21,25 +21,39 @@ export default function Shop() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
    
+// useEffect(() => {
+//   apiFetch('/api/books')
+//     .then((res) => {
+//       console.log("FULL API RESPONSE:", res);
+
+//       const booksData =
+//         Array.isArray(res)
+//           ? res
+//           : Array.isArray(res?.data)
+//           ? res.data
+//           : Array.isArray(res?.book)
+//           ? res.book
+//           : [];
+
+//       setBooks(booksData);
+//     })
+//     .catch((err) => {
+//       console.error("API ERROR:", err);
+//       // ⚠️ only error case me empty karo
+//     });
+// }, []);
+
 useEffect(() => {
-  apiFetch('/api/books')
+  apiFetch('/api/products')
     .then((res) => {
-      console.log("FULL API RESPONSE:", res);
+      console.log("PRODUCT API RESPONSE:", res);
 
-      const booksData =
-        Array.isArray(res)
-          ? res
-          : Array.isArray(res?.data)
-          ? res.data
-          : Array.isArray(res?.book)
-          ? res.book
-          : [];
+      const productsData = Array.isArray(res) ? res : [];
 
-      setBooks(booksData);
+      setBooks(productsData);
     })
     .catch((err) => {
-      console.error("API ERROR:", err);
-      // ⚠️ only error case me empty karo
+      console.error("PRODUCT API ERROR:", err);
     });
 }, []);
   const { addToCart } = useCart();
