@@ -31,7 +31,9 @@ import VendorLogin from "./pages/vendor/VendorLogin";
 import VendorDashboard from "./pages/vendor/VendorDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import VendorApproval from "./pages/admin/VendorApproval";
-
+import VendorProducts from "./pages/vendor/VendorProducts";
+import AdminProtectedRoute from "./pages/admin/AdminProtectedRoute";
+import AddProduct from "./pages/vendor/AddProduct";
 function App() {
   return (
     <Router>
@@ -51,7 +53,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/admin" element={<AdminPanelPage />} />
+      <Route path="/admin" element={<AdminPanelPage />} />
             <Route path="/admin/orders/:id" element={<OrderDetails />} />
             <Route path="/blog" element={<BlogListingPage />} />
             <Route path="/blog/:id" element={<SingleBlogPage />} />
@@ -69,6 +71,39 @@ function App() {
   }
 />
             <Route path="/admin/vendors/:id" element={<VendorApproval />} />
+<Route
+  path="/vendor/products"
+  element={
+    <ProtectedRoute>
+      <VendorProducts />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/vendor/products/new"
+  element={
+    <ProtectedRoute>
+      <AddProduct />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/vendor/products/edit/:id"
+  element={
+    <ProtectedRoute>
+      <AddProduct />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/vendor/products/delete/:id"
+  element={
+    <ProtectedRoute>
+      <AddProduct />
+    </ProtectedRoute>
+  }
+/>
+
           </Routes>
           
         </AnimatePresence>

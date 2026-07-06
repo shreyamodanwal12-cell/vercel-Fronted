@@ -36,6 +36,8 @@ export default function Checkout() {
   customer: form,
   createdAt: new Date(),
 };
+console.log("CART =", cart);
+console.log("CART =", JSON.stringify(cart, null, 2));
 console.log("ORDER DATA =", orderData);
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -123,7 +125,7 @@ console.log("ORDER DATA =", orderData);
           <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
 
           {cart.map((item) => (
-            <div key={item.slug} className="flex gap-4 mb-4">
+            <div key={item.id || item.slug} className="flex gap-4 mb-4">
               <img
                 src={item.cover}
                 className="h-16 w-12 object-cover rounded"

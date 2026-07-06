@@ -236,6 +236,7 @@ console.log("PAGINATED:", paginatedBooks);
   ${Number(book.old_price || 0).toFixed(2)}
 </p>
                         </div>
+                        console.log(product);
                         <button
                           onClick={() => addToCart({
   ...book,

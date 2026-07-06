@@ -7,12 +7,14 @@ const tabs = [
   { key: 'overview', label: 'Overview' },
   { key: 'books', label: 'Books' },
   { key: 'products', label: 'Add Product' },
+ 
   { key: 'categories', label: 'Categories' },
   { key: 'subcategories', label: 'Subcategories' },
  
   { key: 'orders', label: 'Orders' },
   { key: 'users', label: 'Users' },
   { key: 'vendors', label: 'Vendors' },
+  { key: 'productApproval', label: 'Product Approval' },
 ];
 const defaultBook = {
   title: '',
@@ -67,6 +69,7 @@ export default function AdminPanel() {
  const [categories, setCategories] = useState([]);
  const [subcategories, setSubcategories] = useState([]);
  const [products, setProducts] = useState([]);
+ 
  const [subcategoryForm, setSubcategoryForm] =
   useState(defaultSubcategory);
 const [categoryForm, setCategoryForm] = useState(defaultCategory);
@@ -79,6 +82,7 @@ const [categorySearch, setCategorySearch] = useState('');
 const [editingProductId, setEditingProductId] = useState(null);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [approvalProducts, setApprovalProducts] = useState([]);
 const filteredSubcategories = subcategories.filter(
   (sub) => String(sub.category_id) === String(productForm.category_id)
 );
@@ -157,6 +161,15 @@ if (activeTab === 'subcategories' || activeTab === 'products') {
      if (activeTab === 'vendors') {
   const vendorsData = await apiFetch('/api/vendors');
 
+  console.log("VENDORS =", vendorsData);
+
+  setVendors(vendorsData);
+}
+if (activeTab === "productApproval") {
+  const res = await apiFetch("/api/products");
+  setApprovalProducts(res.products || res);
+
+  const vendorsData = await apiFetch("/api/vendors");
   console.log("VENDORS =", vendorsData);
 
   setVendors(vendorsData);
@@ -319,6 +332,7 @@ const handleSaveProduct = async (e) => {
   sku: productForm.sku,
 
   image: productForm.image,
+  vendor_id: Number(localStorage.getItem("VENDOR_ID")) || null,
     };
 
     console.log("PRODUCT PAYLOAD =", payload);
@@ -461,6 +475,26 @@ const addCategory = async (e) => {
     console.log("ERROR =", error);
   }
 }; 
+
+const updateProductApproval = async (id, updates) => {
+  try {
+    await apiFetch(`/api/products/${id}`, {
+      method: "PUT",
+      body: updates,
+    });
+
+    alert("Product updated successfully!");
+
+    const res = await apiFetch("/api/products");
+
+    setApprovalProducts(res.products || res);
+
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+
 const deleteCategory = async (id) => {
   if (!window.confirm('Delete category?')) return;
 
@@ -1083,15 +1117,24 @@ const handleEditCategory = (cat) => {
                   {/* ITEMS */}
                   <div className="mt-3 grid gap-2 rounded-3xl bg-slate-50 p-4 text-sm text-slate-700">
                     {(order.items || []).length ? (
-                      order.items.map((item, index) => (
-                        <div key={index} className="flex justify-between">
-                          <span>Book ID: {item.book_id}</span>
-                          <span>Qty: {item.quantity}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <p>No Items</p>
-                    )}
+  order.items.map((item) => (
+    <div key={item.id} className="flex justify-between border-b py-2">
+      <div>
+        <p className="font-semibold">{item.title}</p>
+        <p className="text-sm text-gray-500">
+          Vendor ID: {item.vendor_id}
+        </p>
+      </div>
+
+      <div className="text-right">
+        <p>Qty: {item.quantity}</p>
+        <p>₹{item.price}</p>
+      </div>
+    </div>
+  ))
+) : (
+  <p>No Items</p>
+)}
                   </div>
 
                 </div>
@@ -1184,6 +1227,7 @@ const handleEditCategory = (cat) => {
 </div>
           </div>
 
+
         ))
       ) : (
         <p>No vendors found.</p>
@@ -1191,6 +1235,87 @@ const handleEditCategory = (cat) => {
     </div>
   </div>
 )}
+    
+  {activeTab === "productApproval" && (
+  <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+
+    <h2 className="text-xl font-semibold text-black">
+      Pending Product Approval
+    </h2>
+
+    <div className="mt-6 space-y-4 text-black">
+
+{approvalProducts.length ? (
+
+  approvalProducts
+  .filter((product) => product.approval_status === "Pending")
+  .map((product) => {
+console.log("Product Vendor ID:", product.vendor_id);
+console.log("Vendors:", vendors);
+    const vendor = vendors.find(
+  (v) => Number(v.id) === Number(product.vendor_id)
+);
+
+    return (
+      <div
+        key={product.id}
+        className="rounded-2xl border p-5"
+      >
+
+        <h3 className="text-lg font-semibold">
+          {product.title}
+        </h3>
+
+        <p>Price : ₹{product.price}</p>
+
+        <p>Vendor : {vendor?.name || "Unknown Vendor"}</p>
+
+        <p>Email : {vendor?.email || "-"}</p>
+
+        <p>Status : {product.approval_status}</p>
+
+        <div className="mt-4 flex gap-3">
+
+          <button
+            onClick={() =>
+              updateProductApproval(product.id, {
+                approval_status: "Approved",
+                is_active: true,
+              })
+            }
+            className="rounded-full bg-green-500 px-5 py-2 text-white"
+          >
+            Approve
+          </button>
+
+          <button
+            onClick={() =>
+              updateProductApproval(product.id, {
+                approval_status: "Rejected",
+                is_active: false,
+              })
+            }
+            className="rounded-full bg-red-500 px-5 py-2 text-white"
+          >
+            Reject
+          </button>
+
+        </div>
+
+      </div>
+    );
+  })
+
+) : (
+
+  <p>No Pending Products</p>
+
+)}
+
     </div>
+
+  </div>
+)}
+</div>
   );
 } 

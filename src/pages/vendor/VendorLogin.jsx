@@ -26,6 +26,10 @@ export default function VendorLogin() {
       });
 
       console.log("VENDOR LOGIN =", data);
+      localStorage.setItem("VENDOR_ID", data.vendor.id);
+localStorage.setItem("VENDOR_NAME", data.vendor.name);
+localStorage.setItem("VENDOR_EMAIL", data.vendor.email);
+localStorage.setItem("VENDOR_ROLE", data.vendor.role);
 
       localStorage.setItem("VENDOR_TOKEN", data.vendor?.id);
       localStorage.setItem("VENDOR_NAME", data.vendor?.name);

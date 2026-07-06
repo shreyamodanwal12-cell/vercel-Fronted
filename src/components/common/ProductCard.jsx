@@ -3,7 +3,7 @@ import { FaStar, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '../../contexts/CartContext';
 
 export default function ProductCard({ book }) {
-  console.log("PRODUCT CARD BOOK =", book);
+ console.log("PRODUCT FULL =", JSON.stringify(book, null, 2));
   const { addToCart } = useCart();
 
 const image = book.image

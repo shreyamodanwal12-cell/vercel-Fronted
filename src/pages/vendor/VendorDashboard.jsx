@@ -1,16 +1,40 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { apiFetch } from "../../utils/api";
 export default function VendorDashboard() {
   const navigate = useNavigate();
-
+const [products, setProducts] = useState([]);
   const vendorName = localStorage.getItem("VENDOR_NAME");
+const loadProducts = async () => {
+  const vendorId = localStorage.getItem("VENDOR_ID");
 
+  const res = await apiFetch(`/api/vendor/products/${vendorId}`);
+
+  console.log("DASHBOARD PRODUCTS =", res);
+
+  setProducts(res.products);
+};
+useEffect(() => {
+  loadProducts();
+}, []);
   const handleLogout = () => {
     localStorage.removeItem("VENDOR_TOKEN");
     localStorage.removeItem("VENDOR_NAME");
     navigate("/vendor/login");
   };
+const totalProducts = products.length;
 
+const approvedProducts = products.filter(
+  (p) => p.approval_status === "Approved"
+).length;
+
+const pendingProducts = products.filter(
+  (p) => p.approval_status === "Pending"
+).length;
+
+const rejectedProducts = products.filter(
+  (p) => p.approval_status === "Rejected"
+).length;
   return (
     <div className="min-h-screen bg-slate-100">
 
@@ -26,6 +50,7 @@ export default function VendorDashboard() {
         >
           Logout
         </button>
+
       </div>
 
       {/* MAIN CONTENT */}
@@ -46,39 +71,56 @@ export default function VendorDashboard() {
 
           <div className="rounded-2xl bg-white p-5 shadow-sm">
             <p className="text-sm text-slate-500">Total Products</p>
-            <h3 className="text-2xl font-bold text-slate-800">12</h3>
+            <h3 className="text-2xl font-bold 
+            //
+            text-slate-800">{totalProducts}</h3>
           </div>
 
           <div className="rounded-2xl bg-white p-5 shadow-sm">
             <p className="text-sm text-slate-500">Pending Approval</p>
-            <h3 className="text-2xl font-bold text-orange-500">3</h3>
+            <h3 className="text-2xl font-bold text-orange-500"> {pendingProducts}</h3>
           </div>
 
           <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Total Sales</p>
-            <h3 className="text-2xl font-bold text-green-600">₹8,450</h3>
-          </div>
+           <p className="text-sm text-slate-500">
+  Approved Products
+</p>
 
+<h3 className="text-2xl font-bold text-green-600">
+  {approvedProducts}
+</h3>
+          </div>
+<div className="rounded-2xl bg-white p-5 shadow-sm">
+  <p className="text-sm text-slate-500">
+    Rejected Products
+  </p>
+
+  <h3 className="text-2xl font-bold text-red-600">
+    {rejectedProducts}
+  </h3>
+</div>
         </div>
 
         {/* ACTIONS */}
         <div className="mt-6 flex flex-wrap gap-4">
 
           <button
-            className="rounded-full bg-black px-6 py-3 text-white hover:bg-slate-800"
-            onClick={() => navigate("/vendor/products")}
+            className="rounded-full bg-orange-500 px-6 py-3 text-white hover:bg-orange-600"
+            onClick={() => navigate("/vendor/products/new")}
           >
             + Add Product
           </button>
 
           <button
-            className="rounded-full border px-6 py-3 hover:bg-slate-200"
-          >
-            View My Products
-          </button>
+ 
+  className="rounded-full bg-orange-500  border px-6 py-3 hover:bg-orange-600"
+   onClick={() => navigate("/vendor/products")}
+>
+  View My Products
+</button>
 
           <button
-            className="rounded-full border px-6 py-3 hover:bg-slate-200"
+            className="rounded-full bg-orange-500  border px-6 py-3 hover:bg-orange-600"
           >
             Orders
           </button>
