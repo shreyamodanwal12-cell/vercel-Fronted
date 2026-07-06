@@ -119,11 +119,12 @@ const rejectedProducts = products.filter(
   View My Products
 </button>
 
-          <button
-            className="rounded-full bg-orange-500  border px-6 py-3 hover:bg-orange-600"
-          >
-            Orders
-          </button>
+         <button
+  className="rounded-full bg-orange-500 border px-6 py-3 hover:bg-orange-600"
+  onClick={() => navigate("/vendor/orders")}
+>
+  Orders
+</button>
 
         </div>
 
