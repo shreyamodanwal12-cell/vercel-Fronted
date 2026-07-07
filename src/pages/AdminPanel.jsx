@@ -86,6 +86,7 @@ const [editingProductId, setEditingProductId] = useState(null);
 const filteredSubcategories = subcategories.filter(
   (sub) => String(sub.category_id) === String(productForm.category_id)
 );
+const [productStatusTab, setProductStatusTab] = useState("Pending");
   useEffect(() => {
     if (token) {
       localStorage.setItem('IBID_ADMIN_TOKEN', token);
@@ -103,6 +104,10 @@ const filteredSubcategories = subcategories.filter(
   useEffect(() => {
   fetchCategories();
 }, []);
+
+useEffect(() => {
+  console.log("CATEGORIES =", categories);
+}, [categories]);
 
   const loggedIn = Boolean(token);
 
@@ -185,6 +190,7 @@ if (activeTab === "productApproval") {
 const fetchCategories = async () => {
   try {
     const res = await apiFetch('/api/categories');
+    console.log("API DATA =", res);
     setCategories(res || []);
   } catch (err) {
     setMessage(err.message);
@@ -592,124 +598,268 @@ const handleEditCategory = (cat) => {
       </div>
 
       {message ? <div className="mb-6 rounded-3xl border border-orange-100 bg-orange-50 px-6 py-4 text-sm text-orange-700">{message}</div> : null}
-      {activeTab === 'categories' && (
-        <>
-      <div className="mb-8 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
-  <h2 className="text-xl font-semibold text-slate-900">
-    Add Category
-  </h2>
+      
+      {activeTab === "categories" && (
+  <div className="space-y-8">
 
-  <form
-    onSubmit={handleAddCategory}
-    className="mt-6 space-y-4"
-  >
-    <input
-      type="text"
-      placeholder="Category Title"
-      value={categoryForm.title}
-      onChange={(e) =>
-        setCategoryForm({
-          ...categoryForm,
-          title: e.target.value,
-        })
-      }
-      className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-    />
+    {/* HEADER */}
 
-    <input
-      type="text"
-      placeholder="Category Description"
-      value={categoryForm.description}
-      onChange={(e) =>
-        setCategoryForm({
-          ...categoryForm,
-          description: e.target.value,
-        })
-      }
-      className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-    />
+    <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
 
-    <input
-      type="text"
-      placeholder="Image URL"
-      value={categoryForm.image}
-      onChange={(e) =>
-        setCategoryForm({
-          ...categoryForm,
-          image: e.target.value,
-        })
-      }
-      className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-    />
+      <div className="flex items-center justify-between">
 
-    <button
-      type="submit"
-      className="rounded-full bg-orange-500 px-6 py-3 text-white"
-    >
-      Add Category
-    </button>
-  </form>
-</div>
+        <div>
+          <p className="text-sm uppercase tracking-[0.25em] text-orange-500">
+            Category Management
+          </p>
 
-{/* search categories */}
-<input
-  type="text"
-  placeholder="Search category..."
-  value={categorySearch}
-  onChange={(e) => setCategorySearch(e.target.value)}
-  className="mb-4 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-/>
-<div className="mt-8 space-y-3">
-  {categories
-  .filter((cat) =>
-    cat.title
-      ?.toLowerCase()
-      .includes(categorySearch.toLowerCase())
-  )
-  .map((cat) => (
-    <div
-      key={cat.id}
-      className="flex items-center justify-between rounded-2xl border p-4"
-    >
-<div>
-  <h3 className="font-semibold">{cat.title}</h3>
+          <h2 className="mt-2 text-3xl font-bold text-slate-900">
+            Manage Categories
+          </h2>
 
-  <p className="text-sm text-slate-500">
-    {cat.description}
-  </p>
+          <p className="mt-2 text-slate-500">
+            Add, edit and organize all categories.
+          </p>
+        </div>
 
-  <p className="text-xs text-slate-400 mt-1">
-    Created: {cat.created_at
-      ? new Date(cat.created_at).toLocaleString()
-      : "N/A"}
-  </p>
-
-  <p className="text-xs text-slate-400">
-    Updated: {cat.updated_at
-      ? new Date(cat.updated_at).toLocaleString()
-      : "N/A"}
-  </p>
-</div>
-      <div className="flex gap-2">
-        <button
-          onClick={() => handleEditCategory(cat)}
-          className="px-3 py-2 bg-blue-500 text-white rounded"
-        >
-          Edit
-        </button>
-
-        <button
-          onClick={() => deleteCategory(cat.id)}
-          className="rounded-full bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-        >
-          Delete
-        </button>
       </div>
-    </div>
-  ))}
-</div>
-</>
 
+    </div>
+
+    {/* STATS */}
+
+    <div className="grid gap-5 md:grid-cols-3">
+
+      <div className="rounded-3xl bg-white p-6 shadow-soft">
+        <p className="text-sm text-slate-500">
+          Total Categories
+        </p>
+
+        <h2 className="mt-2 text-4xl font-bold text-slate-900">
+          {categories.length}
+        </h2>
+      </div>
+
+      <div className="rounded-3xl bg-white p-6 shadow-soft">
+        <p className="text-sm text-slate-500">
+          Categories With Images
+        </p>
+
+        <h2 className="mt-2 text-4xl font-bold text-green-600">
+          {categories.filter(c => c.image).length}
+        </h2>
+      </div>
+
+      <div className="rounded-3xl bg-white p-6 shadow-soft">
+        <p className="text-sm text-slate-500">
+          Without Image
+        </p>
+
+        <h2 className="mt-2 text-4xl font-bold text-orange-500">
+          {categories.filter(c => !c.image).length}
+        </h2>
+      </div>
+
+    </div>
+
+    {/* ADD CATEGORY */}
+
+    <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+
+      <h2 className="text-2xl font-semibold text-slate-900">
+        Add New Category
+      </h2>
+
+      <form
+        onSubmit={handleAddCategory}
+        className="mt-6 grid gap-5 md:grid-cols-2"
+      >
+
+        <input
+          type="text"
+          placeholder="Category Title"
+          value={categoryForm.title}
+          onChange={(e) =>
+            setCategoryForm({
+              ...categoryForm,
+              title: e.target.value,
+            })
+          }
+          className="rounded-2xl border text-black border-slate-200 bg-slate-50 px-5 py-3"
+        />
+
+        <input
+          type="text"
+          placeholder="Image URL"
+          value={categoryForm.image}
+          onChange={(e) =>
+            setCategoryForm({
+              ...categoryForm,
+              image: e.target.value,
+            })
+          }
+          className="rounded-2xl border text-black border-slate-200 bg-slate-50 px-5 py-3"
+        />
+
+        <textarea
+          rows={4}
+          placeholder="Category Description"
+          value={categoryForm.description}
+          onChange={(e) =>
+            setCategoryForm({
+              ...categoryForm,
+              description: e.target.value,
+            })
+          }
+          className="md:col-span-2 text-black rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3"
+        />
+
+        <button
+          type="submit"
+          className="w-fit rounded-full bg-orange-500 px-8 py-3 text-white transition hover:bg-orange-600"
+        >
+          Add Category
+        </button>
+
+      </form>
+
+    </div>
+
+    {/* SEARCH */}
+
+    <div className="rounded-3xl bg-white p-6 shadow-soft">
+
+      <input
+        type="text"
+        placeholder="Search category..."
+        value={categorySearch}
+        onChange={(e) => setCategorySearch(e.target.value)}
+        className="w-full rounded-full border border-slate-200 bg-slate-50 px-5 py-3"
+      />
+
+    </div>
+
+    {/* CATEGORY LIST */}
+
+    <div className="grid gap-6">
+
+      {categories
+        .filter((cat) =>
+          cat.title
+            ?.toLowerCase()
+            .includes(categorySearch.toLowerCase())
+        )
+        .map((cat) => (
+
+          <div
+            key={cat.id}
+            className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft transition hover:shadow-lg"
+          >
+
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+
+              <div className="flex gap-5">
+
+                {/* <img
+                  src={
+                    cat.image ||
+                    "https://placehold.co/120x120?text=Category"
+                  }
+                  alt={cat.title}
+                  className="h-24 w-24 rounded-2xl object-cover border"
+                /> */}
+
+                <div className="flex items-center gap-4">
+
+
+  <img
+    src={`/images/${cat.image}`}
+    alt={cat.title}
+    className="h-20 w-20 rounded-2xl object-cover border border-slate-200"
+    onError={(e) => {
+      e.target.src = "/images/1.jpg";
+    }}
+  />
+
+  <div>
+
+    <h3 className="font-semibold text-lg">
+      {cat.title}
+    </h3>
+
+    <p className="text-sm text-slate-500">
+      {cat.description}
+    </p>
+
+    <p className="text-xs text-slate-400 mt-2">
+      Created:
+      {" "}
+      {cat.created_at
+        ? new Date(cat.created_at).toLocaleString()
+        : "N/A"}
+    </p>
+
+    <p className="text-xs text-slate-400">
+      Updated:
+      {" "}
+      {cat.updated_at
+        ? new Date(cat.updated_at).toLocaleString()
+        : "N/A"}
+    </p>
+
+  </div>
+
+</div>
+
+              </div>
+
+              <div className="flex gap-3">
+
+                <button
+                  onClick={() => handleEditCategory(cat)}
+                  className="rounded-full bg-blue-500 px-6 py-2 text-white hover:bg-blue-600"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => deleteCategory(cat.id)}
+                  className="rounded-full bg-red-500 px-6 py-2 text-white hover:bg-red-600"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+      ))}
+
+      {categories.filter((cat) =>
+        cat.title
+          ?.toLowerCase()
+          .includes(categorySearch.toLowerCase())
+      ).length === 0 && (
+
+        <div className="rounded-3xl bg-white p-16 text-center shadow-soft">
+
+          <h2 className="text-2xl font-semibold text-slate-900">
+            No Categories Found
+          </h2>
+
+          <p className="mt-3 text-slate-500">
+            Try another search or add a new category.
+          </p>
+
+        </div>
+
+      )}
+
+    </div>
+
+  </div>
 )}
 
       {activeTab === 'overview' && (
@@ -1240,15 +1390,52 @@ const handleEditCategory = (cat) => {
   <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
 
     <h2 className="text-xl font-semibold text-black">
-      Pending Product Approval
+      {productStatusTab} Products
     </h2>
+<div className="mt-5 mb-6 flex gap-3">
 
+  <button
+    onClick={() => setProductStatusTab("Pending")}
+    className={`rounded-full px-5 py-2 ${
+      productStatusTab === "Pending"
+        ? "bg-orange-500 text-white"
+        : "bg-slate-200"
+    }`}
+  >
+    Pending
+  </button>
+
+  <button
+    onClick={() => setProductStatusTab("Approved")}
+    className={`rounded-full px-5 py-2 ${
+      productStatusTab === "Approved"
+        ? "bg-green-600 text-white"
+        : "bg-slate-200"
+    }`}
+  >
+    Approved
+  </button>
+
+  <button
+    onClick={() => setProductStatusTab("Rejected")}
+    className={`rounded-full px-5 py-2 ${
+      productStatusTab === "Rejected"
+        ? "bg-red-600 text-white"
+        : "bg-slate-200"
+    }`}
+  >
+    Rejected
+  </button>
+
+</div>
     <div className="mt-6 space-y-4 text-black">
 
 {approvalProducts.length ? (
 
   approvalProducts
-  .filter((product) => product.approval_status === "Pending")
+ .filter(
+  (product) => product.approval_status === productStatusTab
+)
   .map((product) => {
 console.log("Product Vendor ID:", product.vendor_id);
 console.log("Vendors:", vendors);
@@ -1274,33 +1461,37 @@ console.log("Vendors:", vendors);
 
         <p>Status : {product.approval_status}</p>
 
-        <div className="mt-4 flex gap-3">
+        {productStatusTab === "Pending" && (
 
-          <button
-            onClick={() =>
-              updateProductApproval(product.id, {
-                approval_status: "Approved",
-                is_active: true,
-              })
-            }
-            className="rounded-full bg-green-500 px-5 py-2 text-white"
-          >
-            Approve
-          </button>
+<div className="mt-4 flex gap-3">
 
-          <button
-            onClick={() =>
-              updateProductApproval(product.id, {
-                approval_status: "Rejected",
-                is_active: false,
-              })
-            }
-            className="rounded-full bg-red-500 px-5 py-2 text-white"
-          >
-            Reject
-          </button>
+  <button
+    onClick={() =>
+      updateProductApproval(product.id, {
+        approval_status: "Approved",
+        is_active: true,
+      })
+    }
+    className="rounded-full bg-green-500 px-5 py-2 text-white"
+  >
+    Approve
+  </button>
 
-        </div>
+  <button
+    onClick={() =>
+      updateProductApproval(product.id, {
+        approval_status: "Rejected",
+        is_active: false,
+      })
+    }
+    className="rounded-full bg-red-500 px-5 py-2 text-white"
+  >
+    Reject
+  </button>
+
+</div>
+
+)}
 
       </div>
     );
@@ -1308,7 +1499,8 @@ console.log("Vendors:", vendors);
 
 ) : (
 
-  <p>No Pending Products</p>
+ // <p>No Pending Products</p>
+  <p>No {productStatusTab} Products</p>
 
 )}
 

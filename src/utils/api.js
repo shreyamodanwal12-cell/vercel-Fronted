@@ -8,9 +8,11 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (() => {
 })();
 
 export async function apiFetch(path, options = {}) {
-  const adminToken = localStorage.getItem('IBID_ADMIN_TOKEN');
-  const userToken = localStorage.getItem('IBID_USER_TOKEN');
-  const authToken = adminToken || userToken;
+const adminToken = localStorage.getItem("IBID_ADMIN_TOKEN");
+const userToken = localStorage.getItem("IBID_USER_TOKEN");
+
+
+const authToken = adminToken || userToken;
   const headers = {
     ...(options.headers || {}),
     ...(options.body ? { 'Content-Type': 'application/json' } : {}),

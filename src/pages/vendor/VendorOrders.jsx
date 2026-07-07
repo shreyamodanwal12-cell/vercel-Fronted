@@ -18,6 +18,7 @@ export default function VendorOrders() {
     setOrders(res.orders || []);
   }
 
+  
   return (
     <div className="min-h-screen bg-slate-100 text-black p-8">
 
@@ -32,7 +33,28 @@ export default function VendorOrders() {
           Orders containing your products
         </p>
       </div>
+<div className="mb-8 grid gap-4 md:grid-cols-3">
+  <div className="rounded-3xl bg-white p-6 shadow-sm">
+    <p className="text-sm text-slate-500">Total Orders</p>
+    <h2 className="mt-2 text-3xl font-bold text-slate-800">
+      {orders.length}
+    </h2>
+  </div>
 
+  <div className="rounded-3xl bg-white p-6 shadow-sm">
+    <p className="text-sm text-slate-500">Pending Orders</p>
+    <h2 className="mt-2 text-3xl font-bold text-yellow-500">
+      {orders.filter(o => o.status === "Pending").length}
+    </h2>
+  </div>
+
+  <div className="rounded-3xl bg-white p-6 shadow-sm">
+    <p className="text-sm text-slate-500">Revenue</p>
+    <h2 className="mt-2 text-3xl font-bold text-green-600">
+      ₹{orders.reduce((sum, o) => sum + Number(o.total || 0), 0)}
+    </h2>
+  </div>
+</div>
       {orders.length === 0 ? (
         <div className="rounded-3xl bg-white p-12 text-center shadow">
           <h2 className="text-xl font-semibold">
@@ -87,58 +109,112 @@ export default function VendorOrders() {
 
               {/* Products */}
 
-              <div className="mt-6 border-t pt-5">
+              <div className="mt-6 border-t pt-5 space-y-4">
 
-                {(order.items || []).map((item) => (
+  {(order.items || []).map((item) => (
 
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between border-b py-4"
-                  >
+    <div
+      key={item.id}
+      className="flex flex-col md:flex-row md:items-center md:justify-between rounded-2xl border border-slate-200 p-4"
+    >
 
-                    <div>
+      <div className="flex items-center gap-4">
 
-                      <h3 className="font-semibold">
-                        {item.title}
-                      </h3>
+        <img
+          src={`/images/${item.image}`}
+          alt={item.title}
+          className="h-20 w-20 rounded-xl object-cover border"
+        />
 
-                      <p className="text-sm text-slate-500">
-                        SKU : {item.sku}
-                      </p>
+        <div>
 
-                    </div>
+          <h3 className="font-semibold text-slate-800">
+            {item.title}
+          </h3>
 
-                    <div className="text-right">
+          <p className="text-sm text-slate-500">
+            SKU : {item.sku}
+          </p>
 
-                      <p className="font-semibold">
-                        ₹{item.price}
-                      </p>
+          <p className="mt-1 text-xs text-slate-400">
+            Product ID : {item.id}
+          </p>
 
-                      <p className="text-sm text-slate-500">
-                        Qty : {item.quantity}
-                      </p>
+        </div>
 
-                    </div>
+      </div>
 
-                  </div>
+      <div className="mt-4 md:mt-0 flex items-center gap-6">
 
-                ))}
+        <div className="text-center">
+          <p className="text-xs text-slate-500">
+            Quantity
+          </p>
 
-              </div>
+          <p className="font-semibold">
+            {item.quantity}
+          </p>
+        </div>
+
+        <div className="text-center">
+          <p className="text-xs text-slate-500">
+            Price
+          </p>
+
+          <p className="font-semibold text-orange-600">
+            ₹{item.price}
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+  ))}
+
+</div>
 
               {/* Footer */}
 
-              <div className="mt-6 flex justify-between">
+            <div className="mt-6 flex flex-col gap-4 border-t pt-5 md:flex-row md:items-center md:justify-between">
 
-                <h3 className="font-semibold">
-                  Total
-                </h3>
+  <div>
 
-                <h3 className="text-xl font-bold text-orange-600">
-                  ₹{order.total}
-                </h3>
+    <p className="text-sm text-slate-500">
+      Customer ID
+    </p>
 
-              </div>
+    <p className="font-semibold">
+      #{order.user_id}
+    </p>
+
+  </div>
+
+  <div>
+
+    <p className="text-sm text-slate-500">
+      Products
+    </p>
+
+    <p className="font-semibold">
+      {order.items.length}
+    </p>
+
+  </div>
+
+  <div className="text-right">
+
+    <p className="text-sm text-slate-500">
+      Order Total
+    </p>
+
+    <h2 className="text-2xl font-bold text-orange-600">
+      ₹{order.total}
+    </h2>
+
+  </div>
+
+</div>
 
             </div>
 

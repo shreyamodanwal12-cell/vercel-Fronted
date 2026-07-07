@@ -4,6 +4,7 @@ import { apiFetch } from "../../utils/api";
 export default function VendorDashboard() {
   const navigate = useNavigate();
 const [products, setProducts] = useState([]);
+const [orders, setOrders] = useState([]);
   const vendorName = localStorage.getItem("VENDOR_NAME");
 const loadProducts = async () => {
   const vendorId = localStorage.getItem("VENDOR_ID");
@@ -14,8 +15,16 @@ const loadProducts = async () => {
 
   setProducts(res.products);
 };
+const loadOrders = async () => {
+  const vendorId = localStorage.getItem("VENDOR_ID");
+
+  const res = await apiFetch(`/api/vendor/orders/${vendorId}`);
+
+  setOrders(res.orders || []);
+};
 useEffect(() => {
   loadProducts();
+  loadOrders();
 }, []);
   const handleLogout = () => {
     localStorage.removeItem("VENDOR_TOKEN");
@@ -35,6 +44,10 @@ const pendingProducts = products.filter(
 const rejectedProducts = products.filter(
   (p) => p.approval_status === "Rejected"
 ).length;
+const totalRevenue = orders.reduce(
+  (sum, order) => sum + Number(order.total || 0),
+  0
+);
   return (
     <div className="min-h-screen bg-slate-100">
 
@@ -99,6 +112,25 @@ const rejectedProducts = products.filter(
     {rejectedProducts}
   </h3>
 </div>
+<div className="rounded-2xl bg-white p-5 shadow-sm">
+  <p className="text-sm text-slate-500">
+    Total Orders
+  </p>
+
+  <h3 className="text-2xl font-bold text-blue-600">
+    {orders.length}
+  </h3>
+</div>
+<div className="rounded-2xl bg-white p-5 shadow-sm">
+  <p className="text-sm text-slate-500">
+    Revenue
+  </p>
+
+  <h3 className="text-2xl font-bold text-green-600">
+    ₹{totalRevenue}
+  </h3>
+</div>
+
         </div>
 
         {/* ACTIONS */}
@@ -127,6 +159,73 @@ const rejectedProducts = products.filter(
 </button>
 
         </div>
+<div className="mt-10 rounded-2xl bg-white p-6 shadow-sm">
+
+  <div className="flex items-center justify-between">
+
+    <h2 className="text-xl font-semibold text-slate-800">
+      Recent Orders
+    </h2>
+
+    <button
+      onClick={() => navigate("/vendor/orders")}
+      className="text-orange-600 font-medium hover:underline"
+    >
+      View All
+    </button>
+
+  </div>
+
+  <div className="mt-6">
+
+    {orders.length === 0 ? (
+
+      <p className="text-slate-500">
+        No orders found.
+      </p>
+
+    ) : (
+
+      orders.slice(0,5).map((order) => (
+
+        <div
+          key={order.id}
+          className="flex items-center justify-between border-b py-4"
+        >
+
+          <div>
+
+            <h3 className="font-semibold">
+              Order #{order.id}
+            </h3>
+
+            <p className="text-sm text-slate-500">
+              {new Date(order.created_at).toLocaleString()}
+            </p>
+
+          </div>
+
+          <div className="text-right">
+
+            <p className="font-semibold text-orange-600">
+              ₹{order.total}
+            </p>
+
+            <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs text-yellow-700">
+              {order.status}
+            </span>
+
+          </div>
+
+        </div>
+
+      ))
+
+    )}
+
+  </div>
+
+</div>
 
       </div>
     </div>
