@@ -11,7 +11,7 @@ export const books = [
     rating: 4.8,
     reviews: 215,
     badge: 'Bestseller',
-    cover: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80',
+    cover: '1.jpg',
     description: 'A thrilling tale of ink, secrets, and an unexpected treasure hidden inside a small town library.',
     info: {
       pages: 384,

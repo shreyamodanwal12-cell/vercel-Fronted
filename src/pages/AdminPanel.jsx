@@ -2,15 +2,29 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { apiFetch } from '../utils/api';
 import Subcategories from './admin/Subcategories.jsx';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+   LineChart,
+  Line,
+  CartesianGrid,
+} from "recharts";
 
 const tabs = [
   { key: 'overview', label: 'Overview' },
   { key: 'books', label: 'Books' },
   { key: 'products', label: 'Add Product' },
- 
+
   { key: 'categories', label: 'Categories' },
   { key: 'subcategories', label: 'Subcategories' },
- 
+
   { key: 'orders', label: 'Orders' },
   { key: 'users', label: 'Users' },
   { key: 'vendors', label: 'Vendors' },
@@ -35,7 +49,7 @@ const defaultBook = {
 const defaultCategory = {
   title: '',
   description: '',
-   image: '',
+  image: '',
 };
 
 const defaultSubcategory = {
@@ -46,8 +60,8 @@ const defaultSubcategory = {
 const defaultProduct = {
   title: "",
   slug: "",
- category_id: "",
-subcategory_id: "",
+  category_id: "",
+  subcategory_id: "",
   price: "",
   oldPrice: "",
   stock: "",
@@ -65,28 +79,28 @@ export default function AdminPanel() {
   const [books, setBooks] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
- const [vendors, setVendors] = useState([]); 
- const [categories, setCategories] = useState([]);
- const [subcategories, setSubcategories] = useState([]);
- const [products, setProducts] = useState([]);
- 
- const [subcategoryForm, setSubcategoryForm] =
-  useState(defaultSubcategory);
-const [categoryForm, setCategoryForm] = useState(defaultCategory);
-const [categorySearch, setCategorySearch] = useState('');
+  const [vendors, setVendors] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  const [subcategoryForm, setSubcategoryForm] =
+    useState(defaultSubcategory);
+  const [categoryForm, setCategoryForm] = useState(defaultCategory);
+  const [categorySearch, setCategorySearch] = useState('');
   const [bookForm, setBookForm] = useState(defaultBook);
   const [productForm, setProductForm] = useState(defaultProduct);
   const [editingBookId, setEditingBookId] = useState(null);
- 
 
-const [editingProductId, setEditingProductId] = useState(null);
+
+  const [editingProductId, setEditingProductId] = useState(null);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [approvalProducts, setApprovalProducts] = useState([]);
-const filteredSubcategories = subcategories.filter(
-  (sub) => String(sub.category_id) === String(productForm.category_id)
-);
-const [productStatusTab, setProductStatusTab] = useState("Pending");
+  const filteredSubcategories = subcategories.filter(
+    (sub) => String(sub.category_id) === String(productForm.category_id)
+  );
+  const [productStatusTab, setProductStatusTab] = useState("Pending");
   useEffect(() => {
     if (token) {
       localStorage.setItem('IBID_ADMIN_TOKEN', token);
@@ -102,12 +116,12 @@ const [productStatusTab, setProductStatusTab] = useState("Pending");
     }
   }, [activeTab]);
   useEffect(() => {
-  fetchCategories();
-}, []);
+    fetchCategories();
+  }, []);
 
-useEffect(() => {
-  console.log("CATEGORIES =", categories);
-}, [categories]);
+  useEffect(() => {
+    console.log("CATEGORIES =", categories);
+  }, [categories]);
 
   const loggedIn = Boolean(token);
 
@@ -123,9 +137,9 @@ useEffect(() => {
         setBooks(booksData);
       }
       if (activeTab === 'products') {
-  const productsData = await apiFetch('/api/products');
-  setProducts(productsData);
-}
+        const productsData = await apiFetch('/api/products');
+        setProducts(productsData);
+      }
       if (activeTab === 'orders') {
         const ordersData = await apiFetch('/api/orders');
         console.log(
@@ -138,47 +152,47 @@ useEffect(() => {
         setOrders(ordersData);
       }
       if (activeTab === 'Subcategories') {
-  const res = await apiFetch('/api/Subcategories');
-  console.log("SUBCATEGORIES =", res);
-}
+        const res = await apiFetch('/api/Subcategories');
+        console.log("SUBCATEGORIES =", res);
+      }
       if (activeTab === 'users') {
         const usersData = await apiFetch('/api/users');
         setUsers(usersData);
       }
-if (
-  activeTab === 'categories' ||
-  activeTab === 'products'
-) {
-  const categoriesData = await apiFetch('/api/categories');
+      if (
+        activeTab === 'categories' ||
+        activeTab === 'products'
+      ) {
+        const categoriesData = await apiFetch('/api/categories');
 
-  console.log("CATEGORIES =", categoriesData);
+        console.log("CATEGORIES =", categoriesData);
 
-  setCategories(categoriesData);
-}
+        setCategories(categoriesData);
+      }
 
-if (activeTab === 'subcategories' || activeTab === 'products') {
-  const subcategoriesData = await apiFetch('/api/subcategories');
+      if (activeTab === 'subcategories' || activeTab === 'products') {
+        const subcategoriesData = await apiFetch('/api/subcategories');
 
-  console.log("SUBCATEGORIES =", subcategoriesData);
+        console.log("SUBCATEGORIES =", subcategoriesData);
 
-  setSubcategories(subcategoriesData);
-}
-     if (activeTab === 'vendors') {
-  const vendorsData = await apiFetch('/api/vendors');
+        setSubcategories(subcategoriesData);
+      }
+      if (activeTab === 'vendors') {
+        const vendorsData = await apiFetch('/api/vendors');
 
-  console.log("VENDORS =", vendorsData);
+        console.log("VENDORS =", vendorsData);
 
-  setVendors(vendorsData);
-}
-if (activeTab === "productApproval") {
-  const res = await apiFetch("/api/products");
-  setApprovalProducts(res.products || res);
+        setVendors(vendorsData);
+      }
+      if (activeTab === "productApproval") {
+        const res = await apiFetch("/api/products");
+        setApprovalProducts(res.products || res);
 
-  const vendorsData = await apiFetch("/api/vendors");
-  console.log("VENDORS =", vendorsData);
+        const vendorsData = await apiFetch("/api/vendors");
+        console.log("VENDORS =", vendorsData);
 
-  setVendors(vendorsData);
-}
+        setVendors(vendorsData);
+      }
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -187,15 +201,15 @@ if (activeTab === "productApproval") {
   };
 
   //fetch categories for book form
-const fetchCategories = async () => {
-  try {
-    const res = await apiFetch('/api/categories');
-    console.log("API DATA =", res);
-    setCategories(res || []);
-  } catch (err) {
-    setMessage(err.message);
-  }
-};
+  const fetchCategories = async () => {
+    try {
+      const res = await apiFetch('/api/categories');
+      console.log("API DATA =", res);
+      setCategories(res || []);
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
   const handleLogin = async (event) => {
     event.preventDefault();
 
@@ -250,44 +264,44 @@ const fetchCategories = async () => {
   const handleBookFormChange = (field, value) => {
     setBookForm((current) => ({ ...current, [field]: value }));
   };
-const handleAddCategory = async (e) => {
-  e.preventDefault();
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
 
-  try {
-    if (editingCategoryId) {
-      await apiFetch(`/api/categories/${editingCategoryId}`, {
-        method: 'PUT',
-        body: categoryForm,
-      });
+    try {
+      if (editingCategoryId) {
+        await apiFetch(`/api/categories/${editingCategoryId}`, {
+          method: 'PUT',
+          body: categoryForm,
+        });
 
-      setMessage('Category updated successfully.');
-      setEditingCategoryId(null);
-    } else {
-      await apiFetch('/api/categories', {
-        method: 'POST',
-        body: categoryForm,
-      });
+        setMessage('Category updated successfully.');
+        setEditingCategoryId(null);
+      } else {
+        await apiFetch('/api/categories', {
+          method: 'POST',
+          body: categoryForm,
+        });
 
-      setMessage('Category added successfully.');
+        setMessage('Category added successfully.');
+      }
+
+      setCategoryForm(defaultCategory);
+      fetchCategories();
+    } catch (err) {
+      setMessage(err.message);
     }
-
-    setCategoryForm(defaultCategory);
-    fetchCategories();
-  } catch (err) {
-    setMessage(err.message);
-  }
-};
+  };
   const handleSaveBook = async (event) => {
     event.preventDefault();
     setLoading(true);
     setMessage('');
     try {
       const payload = {
-  ...bookForm,
-  price: Number(bookForm.price),
-  oldPrice: Number(bookForm.oldPrice || 0),
-  pages: Number(bookForm.pages || 0),
-};
+        ...bookForm,
+        price: Number(bookForm.price),
+        oldPrice: Number(bookForm.oldPrice || 0),
+        pages: Number(bookForm.pages || 0),
+      };
       console.log("BOOK PAYLOAD =", payload);
       if (editingBookId) {
         await apiFetch(`/api/books/${editingBookId}`, {
@@ -313,142 +327,142 @@ const handleAddCategory = async (e) => {
     }
   };
 
-const handleSaveProduct = async (e) => {
-  e.preventDefault();
+  const handleSaveProduct = async (e) => {
+    e.preventDefault();
 
-  try {
-    const payload = {
-  title: productForm.title,
-  //slug: productForm.slug,
+    try {
+      const payload = {
+        title: productForm.title,
+        //slug: productForm.slug,
 
-  category_id: Number(productForm.category_id),
+        category_id: Number(productForm.category_id),
 
-  subcategory_id: productForm.subcategory_id
-    ? Number(productForm.subcategory_id)
-    : null,
+        subcategory_id: productForm.subcategory_id
+          ? Number(productForm.subcategory_id)
+          : null,
 
-  description: productForm.description,
+        description: productForm.description,
 
-  price: Number(productForm.price),
+        price: Number(productForm.price),
 
-  old_price: Number(productForm.oldPrice || 0),
+        old_price: Number(productForm.oldPrice || 0),
 
-  stock: Number(productForm.stock || 0),
+        stock: Number(productForm.stock || 0),
 
-  sku: productForm.sku,
+        sku: productForm.sku,
 
-  image: productForm.image,
-  vendor_id: Number(localStorage.getItem("VENDOR_ID")) || null,
-    };
+        image: productForm.image,
+        vendor_id: Number(localStorage.getItem("VENDOR_ID")) || null,
+      };
 
-    console.log("PRODUCT PAYLOAD =", payload);
+      console.log("PRODUCT PAYLOAD =", payload);
 
-    if (editingProductId) {
-      await apiFetch(`/api/products/${editingProductId}`, {
-        method: "PUT",
-        body: payload,
-      });
+      if (editingProductId) {
+        await apiFetch(`/api/products/${editingProductId}`, {
+          method: "PUT",
+          body: payload,
+        });
 
-      setMessage("Product updated successfully");
-    } else {
-      await apiFetch("/api/products", {
-        method: "POST",
-        body: payload,
-      });
+        setMessage("Product updated successfully");
+      } else {
+        await apiFetch("/api/products", {
+          method: "POST",
+          body: payload,
+        });
 
-      setMessage("Product created successfully");
+        setMessage("Product created successfully");
+      }
+
+
+
+
+      const data = await apiFetch("/api/products");
+      setProducts(data);
+
+      setProductForm(defaultProduct);
+      setEditingProductId(null);
+
+    } catch (err) {
+      setMessage(err.message);
     }
+  };
 
+  //-----------------handle edit product
+  const handleEditProduct = (product) => {
+    setEditingProductId(product.id);
 
-
-
-    const data = await apiFetch("/api/products");
-    setProducts(data);
-
-    setProductForm(defaultProduct);
-    setEditingProductId(null);
-
-  } catch (err) {
-    setMessage(err.message);
-  } 
-};
-
-//-----------------handle edit product
-    const handleEditProduct = (product) => {
-  setEditingProductId(product.id);
-
-  setProductForm({
-    title: product.title || "",
-    slug: product.slug || "",
-    category_id: product.category_id || "",
-    subcategory_id: product.subcategory_id || "",
-    description: product.description || "",
-    price: product.price || "",
-    oldPrice: product.old_price || "",
-    stock: product.stock || "",
-    sku: product.sku || "",
-    image: product.image || "",
-  });
-};
-
-//-------------------------------handle delete product
-const handleDeleteProduct = async (id) => {
-  if (!window.confirm("Delete this product?")) return;
-
-  try {
-    await apiFetch(`/api/products/${id}`, {
-      method: "DELETE",
+    setProductForm({
+      title: product.title || "",
+      slug: product.slug || "",
+      category_id: product.category_id || "",
+      subcategory_id: product.subcategory_id || "",
+      description: product.description || "",
+      price: product.price || "",
+      oldPrice: product.old_price || "",
+      stock: product.stock || "",
+      sku: product.sku || "",
+      image: product.image || "",
     });
+  };
 
-    const data = await apiFetch("/api/products");
-    setProducts(data);
+  //-------------------------------handle delete product
+  const handleDeleteProduct = async (id) => {
+    if (!window.confirm("Delete this product?")) return;
 
-    setMessage("Product deleted successfully");
-  } catch (err) {
-    setMessage(err.message);
-  }
-};
-//add category
-const addCategory = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    try {
+      await apiFetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
 
-  try {
-    await apiFetch('/api/categories', {
-      method: 'POST',
-      body: categoryForm,
-    });
+      const data = await apiFetch("/api/products");
+      setProducts(data);
 
-    setCategoryForm(defaultCategory);
-    fetchCategories();
-    setMessage('Category created successfully');
-  } catch (err) {
-    setMessage(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
-  
+      setMessage("Product deleted successfully");
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
+  //add category
+  const addCategory = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await apiFetch('/api/categories', {
+        method: 'POST',
+        body: categoryForm,
+      });
+
+      setCategoryForm(defaultCategory);
+      fetchCategories();
+      setMessage('Category created successfully');
+    } catch (err) {
+      setMessage(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const startEditBook = (book) => {
-  setEditingBookId(book.id);
+    setEditingBookId(book.id);
 
-  setBookForm({
-    title: book.title || '',
-    slug: book.slug || '',
-    author: book.author || '',
-    category: book.category || '',
-    price: book.price || '',
-    oldPrice: book.oldPrice || '',
-    badge: book.badge || '',
-    cover: book.cover || '',
-    description: book.description || '',
+    setBookForm({
+      title: book.title || '',
+      slug: book.slug || '',
+      author: book.author || '',
+      category: book.category || '',
+      price: book.price || '',
+      oldPrice: book.oldPrice || '',
+      badge: book.badge || '',
+      cover: book.cover || '',
+      description: book.description || '',
 
-    pages: book.pages || '',
-    language: book.language || '',
-    publisher: book.publisher || '',
-    isbn: book.isbn || '',
-  });
-};
+      pages: book.pages || '',
+      language: book.language || '',
+      publisher: book.publisher || '',
+      isbn: book.isbn || '',
+    });
+  };
   const handleDeleteBook = async (bookId) => {
     if (!window.confirm('Delete this book?')) return;
     setLoading(true);
@@ -463,76 +477,151 @@ const addCategory = async (e) => {
       setLoading(false);
     }
   };
-  
+
   const updateVendor = async (id, updates) => {
-  console.log("UPDATE VENDOR =", id, updates);
+    console.log("UPDATE VENDOR =", id, updates);
 
-  try {
-    const response = await apiFetch(`/api/vendors/${id}`, {
-      method: 'PUT',
-      body: updates,
+    try {
+      const response = await apiFetch(`/api/vendors/${id}`, {
+        method: 'PUT',
+        body: updates,
+      });
+
+      console.log("RESPONSE =", response);
+
+      const vendorData = await apiFetch('/api/vendors');
+      setVendors(vendorData);
+    } catch (error) {
+      console.log("ERROR =", error);
+    }
+  };
+
+  const updateProductApproval = async (id, updates) => {
+    try {
+      await apiFetch(`/api/products/${id}`, {
+        method: "PUT",
+        body: updates,
+      });
+
+      alert("Product updated successfully!");
+
+      const res = await apiFetch("/api/products");
+
+      setApprovalProducts(res.products || res);
+
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+
+  const deleteCategory = async (id) => {
+    if (!window.confirm('Delete category?')) return;
+
+    try {
+      await apiFetch(`/api/categories/${id}`, {
+        method: 'DELETE',
+      });
+
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
+  const handleEditCategory = (cat) => {
+    setCategoryForm({
+      title: cat.title,
+      description: cat.description,
+      image: cat.image || "",
     });
 
-    console.log("RESPONSE =", response);
+    setEditingCategoryId(cat.id);
+  };
+  const overviewStats = [
+    {
+      label: "Products",
+      value: dashboard?.totalProducts || 0,
+    },
+    {
+      label: "Orders",
+      value: dashboard?.totalOrders || 0,
+    },
+    {
+      label: "Revenue",
+      value: `₹${dashboard?.totalRevenue || 0}`,
+    },
+    {
+      label: "Users",
+      value: dashboard?.totalUsers || 0,
+    },
+    {
+      label: "Categories",
+      value: dashboard?.totalCategories || 0,
+    },
+    {
+      label: "Subcategories",
+      value: dashboard?.totalSubcategories || 0,
+    },
+    {
+      label: "Vendors",
+      value: dashboard?.totalVendors || 0,
+    },
+    {
+      label: "Pending Products",
+      value: dashboard?.pendingProducts || 0,
+    },
+    {
+      label: "Approved Products",
+      value: dashboard?.approvedProducts || 0,
+    },
+    {
+      label: "Rejected Products",
+      value: dashboard?.rejectedProducts || 0,
+    },
+  ];
 
-    const vendorData = await apiFetch('/api/vendors');
-    setVendors(vendorData);
-  } catch (error) {
-    console.log("ERROR =", error);
-  }
-}; 
 
-const updateProductApproval = async (id, updates) => {
-  try {
-    await apiFetch(`/api/products/${id}`, {
-      method: "PUT",
-      body: updates,
-    });
+  const chartData = [
+  {
+    name: "Orders",
+    value: dashboard?.totalOrders || 0,
+  },
+  {
+    name: "Pending",
+    value: dashboard?.pendingProducts || 0,
+  },
+  {
+    name: "Approved",
+    value: dashboard?.approvedProducts || 0,
+  },
+  {
+    name: "Rejected",
+    value: dashboard?.rejectedProducts || 0,
+  },
+];
 
-    alert("Product updated successfully!");
-
-    const res = await apiFetch("/api/products");
-
-    setApprovalProducts(res.products || res);
-
-  } catch (err) {
-    alert(err.message);
-  }
-};
-
-
-const deleteCategory = async (id) => {
-  if (!window.confirm('Delete category?')) return;
-
-  try {
-    await apiFetch(`/api/categories/${id}`, {
-      method: 'DELETE',
-    });
-
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-  } catch (err) {
-    setMessage(err.message);
-  }
-};
-const handleEditCategory = (cat) => {
-  setCategoryForm({
-    title: cat.title,
-    description: cat.description,
-    image: cat.image || "",
-  });
-
-  setEditingCategoryId(cat.id);
-};
-  const overviewStats = useMemo(
-    () => [
-      { label: 'Books', value: dashboard?.totalBooks ?? '—' },
-      { label: 'Orders', value: dashboard?.totalOrders ?? '—' },
-      { label: 'Revenue', value: dashboard ? `$${dashboard.totalRevenue.toFixed(2)}` : '—' },
-      { label: 'Users', value: dashboard?.totalUsers ?? '—' },
-    ],
-    [dashboard]
-  );
-
+const pieData = [
+  {
+    name: "Approved",
+    value: dashboard?.approvedProducts || 0,
+  },
+  {
+    name: "Pending",
+    value: dashboard?.pendingProducts || 0,
+  },
+  {
+    name: "Rejected",
+    value: dashboard?.rejectedProducts || 0,
+  },
+];
+const revenueData = dashboard?.monthlyRevenue || [];
+console.log("Revenue Data =", revenueData);
+const topSelling = dashboard?.topSellingProducts || [];
+const COLORS = [
+  "#22c55e",
+  "#f59e0b",
+  "#ef4444",
+];
   if (!loggedIn) {
     return (
       <div className="mx-auto max-w-xl px-4 py-20 sm:px-6 lg:px-8">
@@ -567,7 +656,7 @@ const handleEditCategory = (cat) => {
             </button>
           </form>
           {message ? <p className="mt-4 text-sm text-red-600">{message}</p> : null}
-        </div>
+        </div>  
       </div>
     );
   }
@@ -598,169 +687,169 @@ const handleEditCategory = (cat) => {
       </div>
 
       {message ? <div className="mb-6 rounded-3xl border border-orange-100 bg-orange-50 px-6 py-4 text-sm text-orange-700">{message}</div> : null}
-      
+
       {activeTab === "categories" && (
-  <div className="space-y-8">
+        <div className="space-y-8">
 
-    {/* HEADER */}
+          {/* HEADER */}
 
-    <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+          <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
 
-      <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
 
-        <div>
-          <p className="text-sm uppercase tracking-[0.25em] text-orange-500">
-            Category Management
-          </p>
+              <div>
+                <p className="text-sm uppercase tracking-[0.25em] text-orange-500">
+                  Category Management
+                </p>
 
-          <h2 className="mt-2 text-3xl font-bold text-slate-900">
-            Manage Categories
-          </h2>
+                <h2 className="mt-2 text-3xl font-bold text-slate-900">
+                  Manage Categories
+                </h2>
 
-          <p className="mt-2 text-slate-500">
-            Add, edit and organize all categories.
-          </p>
-        </div>
+                <p className="mt-2 text-slate-500">
+                  Add, edit and organize all categories.
+                </p>
+              </div>
 
-      </div>
+            </div>
 
-    </div>
+          </div>
 
-    {/* STATS */}
+          {/* STATS */}
 
-    <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
 
-      <div className="rounded-3xl bg-white p-6 shadow-soft">
-        <p className="text-sm text-slate-500">
-          Total Categories
-        </p>
+            <div className="rounded-3xl bg-white p-6 shadow-soft">
+              <p className="text-sm text-slate-500">
+                Total Categories
+              </p>
 
-        <h2 className="mt-2 text-4xl font-bold text-slate-900">
-          {categories.length}
-        </h2>
-      </div>
+              <h2 className="mt-2 text-4xl font-bold text-slate-900">
+                {categories.length}
+              </h2>
+            </div>
 
-      <div className="rounded-3xl bg-white p-6 shadow-soft">
-        <p className="text-sm text-slate-500">
-          Categories With Images
-        </p>
+            <div className="rounded-3xl bg-white p-6 shadow-soft">
+              <p className="text-sm text-slate-500">
+                Categories With Images
+              </p>
 
-        <h2 className="mt-2 text-4xl font-bold text-green-600">
-          {categories.filter(c => c.image).length}
-        </h2>
-      </div>
+              <h2 className="mt-2 text-4xl font-bold text-green-600">
+                {categories.filter(c => c.image).length}
+              </h2>
+            </div>
 
-      <div className="rounded-3xl bg-white p-6 shadow-soft">
-        <p className="text-sm text-slate-500">
-          Without Image
-        </p>
+            <div className="rounded-3xl bg-white p-6 shadow-soft">
+              <p className="text-sm text-slate-500">
+                Without Image
+              </p>
 
-        <h2 className="mt-2 text-4xl font-bold text-orange-500">
-          {categories.filter(c => !c.image).length}
-        </h2>
-      </div>
+              <h2 className="mt-2 text-4xl font-bold text-orange-500">
+                {categories.filter(c => !c.image).length}
+              </h2>
+            </div>
 
-    </div>
+          </div>
 
-    {/* ADD CATEGORY */}
+          {/* ADD CATEGORY */}
 
-    <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+          <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
 
-      <h2 className="text-2xl font-semibold text-slate-900">
-        Add New Category
-      </h2>
+            <h2 className="text-2xl font-semibold text-slate-900">
+              Add New Category
+            </h2>
 
-      <form
-        onSubmit={handleAddCategory}
-        className="mt-6 grid gap-5 md:grid-cols-2"
-      >
+            <form
+              onSubmit={handleAddCategory}
+              className="mt-6 grid gap-5 md:grid-cols-2"
+            >
 
-        <input
-          type="text"
-          placeholder="Category Title"
-          value={categoryForm.title}
-          onChange={(e) =>
-            setCategoryForm({
-              ...categoryForm,
-              title: e.target.value,
-            })
-          }
-          className="rounded-2xl border text-black border-slate-200 bg-slate-50 px-5 py-3"
-        />
+              <input
+                type="text"
+                placeholder="Category Title"
+                value={categoryForm.title}
+                onChange={(e) =>
+                  setCategoryForm({
+                    ...categoryForm,
+                    title: e.target.value,
+                  })
+                }
+                className="rounded-2xl border text-black border-slate-200 bg-slate-50 px-5 py-3"
+              />
 
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={categoryForm.image}
-          onChange={(e) =>
-            setCategoryForm({
-              ...categoryForm,
-              image: e.target.value,
-            })
-          }
-          className="rounded-2xl border text-black border-slate-200 bg-slate-50 px-5 py-3"
-        />
+              <input
+                type="text"
+                placeholder="Image URL"
+                value={categoryForm.image}
+                onChange={(e) =>
+                  setCategoryForm({
+                    ...categoryForm,
+                    image: e.target.value,
+                  })
+                }
+                className="rounded-2xl border text-black border-slate-200 bg-slate-50 px-5 py-3"
+              />
 
-        <textarea
-          rows={4}
-          placeholder="Category Description"
-          value={categoryForm.description}
-          onChange={(e) =>
-            setCategoryForm({
-              ...categoryForm,
-              description: e.target.value,
-            })
-          }
-          className="md:col-span-2 text-black rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3"
-        />
+              <textarea
+                rows={4}
+                placeholder="Category Description"
+                value={categoryForm.description}
+                onChange={(e) =>
+                  setCategoryForm({
+                    ...categoryForm,
+                    description: e.target.value,
+                  })
+                }
+                className="md:col-span-2 text-black rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3"
+              />
 
-        <button
-          type="submit"
-          className="w-fit rounded-full bg-orange-500 px-8 py-3 text-white transition hover:bg-orange-600"
-        >
-          Add Category
-        </button>
+              <button
+                type="submit"
+                className="w-fit rounded-full bg-orange-500 px-8 py-3 text-white transition hover:bg-orange-600"
+              >
+                Add Category
+              </button>
 
-      </form>
+            </form>
 
-    </div>
+          </div>
 
-    {/* SEARCH */}
+          {/* SEARCH */}
 
-    <div className="rounded-3xl bg-white p-6 shadow-soft">
+          <div className="rounded-3xl bg-white p-6 shadow-soft">
 
-      <input
-        type="text"
-        placeholder="Search category..."
-        value={categorySearch}
-        onChange={(e) => setCategorySearch(e.target.value)}
-        className="w-full rounded-full border border-slate-200 bg-slate-50 px-5 py-3"
-      />
+            <input
+              type="text"
+              placeholder="Search category..."
+              value={categorySearch}
+              onChange={(e) => setCategorySearch(e.target.value)}
+              className="w-full rounded-full border border-slate-200 bg-slate-50 px-5 py-3"
+            />
 
-    </div>
+          </div>
 
-    {/* CATEGORY LIST */}
+          {/* CATEGORY LIST */}
 
-    <div className="grid gap-6">
+          <div className="grid gap-6">
 
-      {categories
-        .filter((cat) =>
-          cat.title
-            ?.toLowerCase()
-            .includes(categorySearch.toLowerCase())
-        )
-        .map((cat) => (
+            {categories
+              .filter((cat) =>
+                cat.title
+                  ?.toLowerCase()
+                  .includes(categorySearch.toLowerCase())
+              )
+              .map((cat) => (
 
-          <div
-            key={cat.id}
-            className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft transition hover:shadow-lg"
-          >
+                <div
+                  key={cat.id}
+                  className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft transition hover:shadow-lg"
+                >
 
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                  <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
 
-              <div className="flex gap-5">
+                    <div className="flex gap-5">
 
-                {/* <img
+                      {/* <img
                   src={
                     cat.image ||
                     "https://placehold.co/120x120?text=Category"
@@ -769,108 +858,188 @@ const handleEditCategory = (cat) => {
                   className="h-24 w-24 rounded-2xl object-cover border"
                 /> */}
 
-                <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4">
 
 
-  <img
-    src={`/images/${cat.image}`}
-    alt={cat.title}
-    className="h-20 w-20 rounded-2xl object-cover border border-slate-200"
-    onError={(e) => {
-      e.target.src = "/images/1.jpg";
-    }}
-  />
+                        <img
+                          src={`/images/${cat.image}`}
+                          alt={cat.title}
+                          className="h-20 w-20 rounded-2xl object-cover border border-slate-200"
+                          onError={(e) => {
+                            e.target.src = "/images/1.jpg";
+                          }}
+                        />
 
-  <div>
+                        <div>
 
-    <h3 className="font-semibold text-lg">
-      {cat.title}
-    </h3>
+                          <h3 className="font-semibold text-lg">
+                            {cat.title}
+                          </h3>
 
-    <p className="text-sm text-slate-500">
-      {cat.description}
-    </p>
+                          <p className="text-sm text-slate-500">
+                            {cat.description}
+                          </p>
 
-    <p className="text-xs text-slate-400 mt-2">
-      Created:
-      {" "}
-      {cat.created_at
-        ? new Date(cat.created_at).toLocaleString()
-        : "N/A"}
-    </p>
+                          <p className="text-xs text-slate-400 mt-2">
+                            Created:
+                            {" "}
+                            {cat.created_at
+                              ? new Date(cat.created_at).toLocaleString()
+                              : "N/A"}
+                          </p>
 
-    <p className="text-xs text-slate-400">
-      Updated:
-      {" "}
-      {cat.updated_at
-        ? new Date(cat.updated_at).toLocaleString()
-        : "N/A"}
-    </p>
+                          <p className="text-xs text-slate-400">
+                            Updated:
+                            {" "}
+                            {cat.updated_at
+                              ? new Date(cat.updated_at).toLocaleString()
+                              : "N/A"}
+                          </p>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div className="flex gap-3">
+
+                      <button
+                        onClick={() => handleEditCategory(cat)}
+                        className="rounded-full bg-blue-500 px-6 py-2 text-white hover:bg-blue-600"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => deleteCategory(cat.id)}
+                        className="rounded-full bg-red-500 px-6 py-2 text-white hover:bg-red-600"
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            {categories.filter((cat) =>
+              cat.title
+                ?.toLowerCase()
+                .includes(categorySearch.toLowerCase())
+            ).length === 0 && (
+
+                <div className="rounded-3xl bg-white p-16 text-center shadow-soft">
+
+                  <h2 className="text-2xl font-semibold text-slate-900">
+                    No Categories Found
+                  </h2>
+
+                  <p className="mt-3 text-slate-500">
+                    Try another search or add a new category.
+                  </p>
+
+                </div>
+
+              )}
+
+          </div>
+
+        </div>
+      )}
+
+      {activeTab === 'overview' && (
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
+          {overviewStats.map((item) => (
+            <div
+  key={item.label}
+  className="rounded-[28px] bg-white border border-slate-200 p-6 shadow-sm hover:shadow-lg transition"
+>
+  <p className="text-sm uppercase tracking-wider text-slate-500">
+    {item.label}
+  </p>
+
+  <h2 className="mt-4 text-4xl font-bold text-orange-600">
+    {item.value}
+  </h2>
+</div>
+          ))}
+          <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft lg:col-span-4">
+            <div className="mb-6">
+  <h2 className="text-2xl font-bold text-slate-800">
+    Dashboard Analytics
+  </h2>
+
+  <p className="text-slate-500 mt-2">
+    Overview of products, orders and approval status.
+  </p>
+</div>
+            <div className="grid gap-6 lg:grid-cols-2">
+
+  <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-soft">
+
+    <h2 className="mb-6 text-xl font-semibold">
+      Orders Overview
+    </h2>
+
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={chartData}>
+
+        <XAxis dataKey="name" />
+
+        <YAxis />
+
+        <Tooltip />
+
+        <Bar
+          dataKey="value"
+          fill="#f97316"
+          radius={[8, 8, 0, 0]}
+        />
+
+      </BarChart>
+    </ResponsiveContainer>
+
+  </div>
+
+  <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-soft">
+
+    <h2 className="mb-6 text-xl font-semibold">
+      Product Status
+    </h2>
+
+    <ResponsiveContainer width="100%" height={300}>
+
+      <PieChart>
+
+        <Pie
+          data={pieData}
+          dataKey="value"
+          outerRadius={100}
+          label
+        >
+
+          {pieData.map((entry, index) => (
+            <Cell
+              key={index}
+              fill={COLORS[index]}
+            />
+          ))}
+
+        </Pie>
+
+        <Tooltip />
+
+      </PieChart>
+
+    </ResponsiveContainer>
 
   </div>
 
 </div>
-
-              </div>
-
-              <div className="flex gap-3">
-
-                <button
-                  onClick={() => handleEditCategory(cat)}
-                  className="rounded-full bg-blue-500 px-6 py-2 text-white hover:bg-blue-600"
-                >
-                  Edit
-                </button>
-
-                <button
-                  onClick={() => deleteCategory(cat.id)}
-                  className="rounded-full bg-red-500 px-6 py-2 text-white hover:bg-red-600"
-                >
-                  Delete
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-
-      ))}
-
-      {categories.filter((cat) =>
-        cat.title
-          ?.toLowerCase()
-          .includes(categorySearch.toLowerCase())
-      ).length === 0 && (
-
-        <div className="rounded-3xl bg-white p-16 text-center shadow-soft">
-
-          <h2 className="text-2xl font-semibold text-slate-900">
-            No Categories Found
-          </h2>
-
-          <p className="mt-3 text-slate-500">
-            Try another search or add a new category.
-          </p>
-
-        </div>
-
-      )}
-
-    </div>
-
-  </div>
-)}
-
-      {activeTab === 'overview' && (
-        <div className="grid gap-6 lg:grid-cols-4">
-          {overviewStats.map((item) => (
-            <div key={item.label} className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
-              <p className="text-sm uppercase tracking-[0.28em] text-slate-500">{item.label}</p>
-              <p className="mt-4 text-4xl font-semibold text-slate-900">{item.value}</p>
-            </div>
-          ))}
-          <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft lg:col-span-4">
             <h2 className="text-xl font-semibold text-slate-900">Recent orders</h2>
             <div className="mt-6 space-y-4">
               {dashboard?.recentOrders?.length ? (
@@ -887,6 +1056,152 @@ const handleEditCategory = (cat) => {
                 <p className="text-sm text-slate-500">No recent orders available.</p>
               )}
             </div>
+            <div className="mt-10 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+  <div className="flex items-center justify-between">
+    <h2 className="text-xl font-semibold text-slate-900">
+      Latest Products
+    </h2>
+
+    <span className="text-sm text-slate-500">
+      Last 5 Products
+    </span>
+  </div>
+
+  <div className="mt-6 space-y-4">
+    {dashboard?.latestProducts?.length ? (
+      dashboard.latestProducts.map((product) => (
+        <div
+          key={product.id}
+          className="flex items-center justify-between rounded-2xl border border-slate-200 p-4 hover:bg-slate-50 transition"
+        >
+          <div className="flex items-center gap-4">
+            <img
+              src={`/images/${product.image}`}
+              alt={product.title}
+              className="h-16 w-16 rounded-xl object-cover border"
+              onError={(e) => {
+                e.target.src = "/images/1.jpg";
+              }}
+            />
+
+            <div>
+              <h3 className="font-semibold text-slate-900">
+                {product.title}
+              </h3>
+
+              <p className="text-sm text-slate-500">
+                ₹{product.price}
+              </p>
+            </div>
+          </div>
+
+          <span
+            className={`rounded-full px-4 py-2 text-sm font-semibold
+              ${
+                product.approval_status === "Approved"
+                  ? "bg-green-100 text-green-700"
+                  : product.approval_status === "Pending"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+          >
+            {product.approval_status}
+          </span>
+        </div>
+      ))
+    ) : (
+      <p className="text-slate-500">
+        No Products Available
+      </p>
+    )}
+  </div>
+</div>
+<div className="mt-8 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+
+  <h2 className="mb-6 text-xl font-semibold text-slate-900">
+    Monthly Revenue
+  </h2>
+
+  <ResponsiveContainer width="100%" height={320}>
+
+    <LineChart data={revenueData}>
+
+      <CartesianGrid strokeDasharray="3 3" />
+
+      <XAxis dataKey="month" />
+
+      <YAxis />
+
+      <Tooltip />
+
+      <Line
+        type="monotone"
+        dataKey="revenue"
+        stroke="#f97316"
+        strokeWidth={3}
+      />
+
+    </LineChart>
+
+  </ResponsiveContainer>
+
+</div>
+<div className="mt-8 rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+
+  <div className="flex items-center justify-between">
+    <h2 className="text-xl font-semibold text-slate-900">
+      🔥 Top Selling Products
+    </h2>
+
+    <span className="text-sm text-slate-500">
+      Top 5
+    </span>
+  </div>
+
+  <div className="mt-6 space-y-4">
+
+    {topSelling.length ? (
+
+      topSelling.map((product, index) => (
+
+        <div
+          key={index}
+          className="flex items-center justify-between rounded-2xl border border-slate-200 p-4 hover:bg-slate-50 transition"
+        >
+
+          <div>
+
+            <h3 className="font-semibold text-slate-900">
+              {product.title}
+            </h3>
+
+            <p className="text-sm text-slate-500">
+              Product
+            </p>
+
+          </div>
+
+          <span className="rounded-full bg-orange-100 px-4 py-2 font-semibold text-orange-600">
+
+            Sold : {product.sold}
+
+          </span>
+
+        </div>
+
+      ))
+
+    ) : (
+
+      <p className="text-slate-500">
+        No Sales Yet
+      </p>
+
+    )}
+
+  </div>
+
+</div>
           </div>
         </div>
       )}
@@ -933,21 +1248,21 @@ const handleEditCategory = (cat) => {
                 <div className="grid gap-4 sm:grid-cols-2">
 
                   <select
-  value={bookForm.category}
-  onChange={(e) =>
-    handleBookFormChange('category', e.target.value)
-  }
-  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500"
->
-  <option value="">Select Category</option>
+                    value={bookForm.category}
+                    onChange={(e) =>
+                      handleBookFormChange('category', e.target.value)
+                    }
+                    className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500"
+                  >
+                    <option value="">Select Category</option>
 
-  {categories?.map((cat) => (
-    <option key={cat.id} value={cat.title}>
-      {cat.title}
-    </option>
-  ))} 
-</select>
-  {/* <div className="mt-8 space-y-3">
+                    {categories?.map((cat) => (
+                      <option key={cat.id} value={cat.title}>
+                        {cat.title}
+                      </option>
+                    ))}
+                  </select>
+                  {/* <div className="mt-8 space-y-3">
   {categories.map((cat) => (
     <div
       key={cat.id}
@@ -987,45 +1302,45 @@ const handleEditCategory = (cat) => {
                 <textarea value={bookForm.description} onChange={(e) => handleBookFormChange('description', e.target.value)} placeholder="Description" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 <div className="flex flex-wrap gap-3">
                   <div className="grid gap-4 sm:grid-cols-2">
-  <input
-    value={bookForm.pages || ""}
-    onChange={(e) =>
-      handleBookFormChange('pages', e.target.value)
-    }
-    type="number"
-    placeholder="Pages"
-    className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
-  />
+                    <input
+                      value={bookForm.pages || ""}
+                      onChange={(e) =>
+                        handleBookFormChange('pages', e.target.value)
+                      }
+                      type="number"
+                      placeholder="Pages"
+                      className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
+                    />
 
-  <input
-    value={bookForm.language || ""}
-    onChange={(e) =>
-      handleBookFormChange('language', e.target.value)
-    }
-    placeholder="Language"
-    className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
-  />
-</div>
+                    <input
+                      value={bookForm.language || ""}
+                      onChange={(e) =>
+                        handleBookFormChange('language', e.target.value)
+                      }
+                      placeholder="Language"
+                      className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
+                    />
+                  </div>
 
-<div className="grid gap-4 sm:grid-cols-2">
-  <input
-    value={bookForm.publisher || ""}
-    onChange={(e) =>
-      handleBookFormChange('publisher', e.target.value)
-    }
-    placeholder="Publisher"
-    className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
-  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <input
+                      value={bookForm.publisher || ""}
+                      onChange={(e) =>
+                        handleBookFormChange('publisher', e.target.value)
+                      }
+                      placeholder="Publisher"
+                      className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
+                    />
 
-  <input
-    value={bookForm.isbn || ""}
-    onChange={(e) =>
-      handleBookFormChange('isbn', e.target.value)
-    }
-    placeholder="ISBN"
-    className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
-  />
-</div>
+                    <input
+                      value={bookForm.isbn || ""}
+                      onChange={(e) =>
+                        handleBookFormChange('isbn', e.target.value)
+                      }
+                      placeholder="ISBN"
+                      className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black"
+                    />
+                  </div>
                   <button type="submit" className="rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white hover:bg-orange-600">
                     {editingBookId ? 'Update book' : 'Create book'}
                   </button>
@@ -1038,194 +1353,194 @@ const handleEditCategory = (cat) => {
           </div>
         </div>
       )}
-{activeTab === "products" && (
-  <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
-    <h2 className="text-2xl text-black  font-semibold mb-6">
-      Add Product
-    </h2>
+      {activeTab === "products" && (
+        <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+          <h2 className="text-2xl text-black  font-semibold mb-6">
+            Add Product
+          </h2>
 
-    <form
-  onSubmit={handleSaveProduct}
-  className="space-y-4"
->
+          <form
+            onSubmit={handleSaveProduct}
+            className="space-y-4"
+          >
 
-      <input
-        type="text"
-        placeholder="Product Title"
-        value={productForm.title}
-        onChange={(e) =>
-          setProductForm({
-            ...productForm,
-            title: e.target.value,
-          })
-        }
-        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-      />
+            <input
+              type="text"
+              placeholder="Product Title"
+              value={productForm.title}
+              onChange={(e) =>
+                setProductForm({
+                  ...productForm,
+                  title: e.target.value,
+                })
+              }
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+            />
 
-<select
-  value={productForm.category_id}
-  onChange={(e) =>
-    setProductForm({
-      ...productForm,
-      category_id: e.target.value,
-    })
-  }
-  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
->
-  <option value="">Select Category</option>
+            <select
+              value={productForm.category_id}
+              onChange={(e) =>
+                setProductForm({
+                  ...productForm,
+                  category_id: e.target.value,
+                })
+              }
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+            >
+              <option value="">Select Category</option>
 
-  {categories.map((cat) => (
-    <option key={cat.id} value={cat.id}>
-      {cat.title}
-    </option>
-  ))}
-</select>
-<select
-  value={productForm.subcategory_id}
-  onChange={(e) =>
-    setProductForm({
-      ...productForm,
-      subcategory_id: e.target.value,
-    })
-  }
-  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
->
-  <option value="">Select Subcategory</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.title}
+                </option>
+              ))}
+            </select>
+            <select
+              value={productForm.subcategory_id}
+              onChange={(e) =>
+                setProductForm({
+                  ...productForm,
+                  subcategory_id: e.target.value,
+                })
+              }
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+            >
+              <option value="">Select Subcategory</option>
 
-  {filteredSubcategories.map((sub) => (
-    <option key={sub.id} value={sub.id}>
-      {sub.title}
-    </option>
-  ))}
-</select>
-      <textarea
-        placeholder="Description"
-        value={productForm.description}
-        onChange={(e) =>
-          setProductForm({
-            ...productForm,
-            description: e.target.value,
-          })
-        }
-        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-      />
-<input
-  type="text"
-  placeholder="SKU"
-  value={productForm.sku}
-  onChange={(e) =>
-    setProductForm({
-      ...productForm,
-      sku: e.target.value,
-    })
-  }
-  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-/>
+              {filteredSubcategories.map((sub) => (
+                <option key={sub.id} value={sub.id}>
+                  {sub.title}
+                </option>
+              ))}
+            </select>
+            <textarea
+              placeholder="Description"
+              value={productForm.description}
+              onChange={(e) =>
+                setProductForm({
+                  ...productForm,
+                  description: e.target.value,
+                })
+              }
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+            />
+            <input
+              type="text"
+              placeholder="SKU"
+              value={productForm.sku}
+              onChange={(e) =>
+                setProductForm({
+                  ...productForm,
+                  sku: e.target.value,
+                })
+              }
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+            />
 
-<input
-  type="number"
-  placeholder="Stock"
-  value={productForm.stock}
-  onChange={(e) =>
-    setProductForm({
-      ...productForm,
-      stock: e.target.value,
-    })
-  }
-  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-/>
+            <input
+              type="number"
+              placeholder="Stock"
+              value={productForm.stock}
+              onChange={(e) =>
+                setProductForm({
+                  ...productForm,
+                  stock: e.target.value,
+                })
+              }
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+            />
 
-<input
-  type="text"
-  placeholder="Image URL"
-  value={productForm.image}
-  onChange={(e) =>
-    setProductForm({
-      ...productForm,
-      image: e.target.value,
-    })
-  }
-  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-/>
-      <input
-        type="number"
-        placeholder="Price"
-        value={productForm.price}
-        onChange={(e) =>
-          setProductForm({
-            ...productForm,
-            price: e.target.value,
-          })
-        }
-        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-      />
+            <input
+              type="text"
+              placeholder="Image URL"
+              value={productForm.image}
+              onChange={(e) =>
+                setProductForm({
+                  ...productForm,
+                  image: e.target.value,
+                })
+              }
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+            />
+            <input
+              type="number"
+              placeholder="Price"
+              value={productForm.price}
+              onChange={(e) =>
+                setProductForm({
+                  ...productForm,
+                  price: e.target.value,
+                })
+              }
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+            />
 
-      <input
-        type="number"
-        placeholder="Old Price"
-        value={productForm.oldPrice}
-        onChange={(e) =>
-          setProductForm({
-            ...productForm,
-            oldPrice: e.target.value,
-          })
-        }
-        className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
-      />
+            <input
+              type="number"
+              placeholder="Old Price"
+              value={productForm.oldPrice}
+              onChange={(e) =>
+                setProductForm({
+                  ...productForm,
+                  oldPrice: e.target.value,
+                })
+              }
+              className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+            />
 
-      <button
-        type="submit"
-        className="rounded-full bg-orange-500 px-6 py-3 text-white"
-      >
-       {editingProductId ? "Update Product" : "Save Product"}
-      </button>
+            <button
+              type="submit"
+              className="rounded-full bg-orange-500 px-6 py-3 text-white"
+            >
+              {editingProductId ? "Update Product" : "Save Product"}
+            </button>
 
-    </form>
+          </form>
 
-    <div className="mt-8 space-y-4">
-  <h2 className="text-xl text-black font-semibold ">Products</h2>
+          <div className="mt-8 space-y-4">
+            <h2 className="text-xl text-black font-semibold ">Products</h2>
 
-  {products.map((product) => (
-    <div
-      key={product.id}
-      className="rounded-2xl border p-4 flex justify-between items-center"
-    >
-      <div>
-        <h3 className="font-semibold text-blak">{product.title}</h3>
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="rounded-2xl border p-4 flex justify-between items-center"
+              >
+                <div>
+                  <h3 className="font-semibold text-blak">{product.title}</h3>
 
-        <p className="text-sm text-gray-500">
-          ₹{product.price}
-        </p>
+                  <p className="text-sm text-gray-500">
+                    ₹{product.price}
+                  </p>
 
-        <p className="text-sm text-black text-gray-500">
-          {product.categories?.title}
-        </p>
+                  <p className="text-sm text-black text-gray-500">
+                    {product.categories?.title}
+                  </p>
 
-        <p className="text-sm text-gray-500">
-          {product.subcategories?.title}
-        </p>
-      </div>
+                  <p className="text-sm text-gray-500">
+                    {product.subcategories?.title}
+                  </p>
+                </div>
 
-      <div className="flex gap-2">
-      <button
-  onClick={() => handleEditProduct(product)}
-  className="px-4 py-2 bg-blue-500 text-white rounded"
->
-  Edit
-</button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEditProduct(product)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                  >
+                    Edit
+                  </button>
 
-      <button
-  onClick={() => handleDeleteProduct(product.id)}
-  className="px-4 py-2 bg-red-500 text-white rounded"
->
-  Delete
-</button>
-      </div>
-    </div>
-  ))}
-</div>
-  </div>
-)}
+                  <button
+                    onClick={() => handleDeleteProduct(product.id)}
+                    className="px-4 py-2 bg-red-500 text-white rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {activeTab === 'orders' && (
         <div className="space-y-6">
@@ -1267,24 +1582,24 @@ const handleEditCategory = (cat) => {
                   {/* ITEMS */}
                   <div className="mt-3 grid gap-2 rounded-3xl bg-slate-50 p-4 text-sm text-slate-700">
                     {(order.items || []).length ? (
-  order.items.map((item) => (
-    <div key={item.id} className="flex justify-between border-b py-2">
-      <div>
-        <p className="font-semibold">{item.title}</p>
-        <p className="text-sm text-gray-500">
-          Vendor ID: {item.vendor_id}
-        </p>
-      </div>
+                      order.items.map((item) => (
+                        <div key={item.id} className="flex justify-between border-b py-2">
+                          <div>
+                            <p className="font-semibold">{item.title}</p>
+                            <p className="text-sm text-gray-500">
+                              Vendor ID: {item.vendor_id}
+                            </p>
+                          </div>
 
-      <div className="text-right">
-        <p>Qty: {item.quantity}</p>
-        <p>₹{item.price}</p>
-      </div>
-    </div>
-  ))
-) : (
-  <p>No Items</p>
-)}
+                          <div className="text-right">
+                            <p>Qty: {item.quantity}</p>
+                            <p>₹{item.price}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No Items</p>
+                    )}
                   </div>
 
                 </div>
@@ -1298,9 +1613,9 @@ const handleEditCategory = (cat) => {
         </div>
       )}
       {/* ------------subcategory------------ */}
-     {activeTab === 'subcategories' && (
-  <Subcategories />
-)}
+      {activeTab === 'subcategories' && (
+        <Subcategories />
+      )}
       {activeTab === 'users' && (
         <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
           <h2 className="text-xl font-semibold text-slate-900">Users</h2>
@@ -1318,196 +1633,193 @@ const handleEditCategory = (cat) => {
             )}
           </div>
         </div>
-        
+
       )}
       {activeTab === 'vendors' && (
-  <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
-    <h2 className="text-xl font-semibold text-slate-900">
-      Vendors
-    </h2>
+        <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+          <h2 className="text-xl font-semibold text-slate-900">
+            Vendors
+          </h2>
 
-    <div className="mt-6 grid gap-4">
-      {vendors.length ? (
-        vendors.map((vendor) => (
-          <div
-            key={vendor.id}
-            className="rounded-3xl border border-slate-100 bg-slate-50 p-4"
-          >
-            <h3 className="font-semibold text-slate-900">
-              {vendor.name}
-            </h3>
+          <div className="mt-6 grid gap-4">
+            {vendors.length ? (
+              vendors.map((vendor) => (
+                <div
+                  key={vendor.id}
+                  className="rounded-3xl border border-slate-100 bg-slate-50 p-4"
+                >
+                  <h3 className="font-semibold text-slate-900">
+                    {vendor.name}
+                  </h3>
 
-            <p className="text-sm text-slate-500">
-              {vendor.email}
-            </p>
+                  <p className="text-sm text-slate-500">
+                    {vendor.email}
+                  </p>
 
-            <p className="text-sm">
-              Approved:
-              {" "}
-              {vendor.is_approved ? "Yes" : "No"}
-            </p>
+                  <p className="text-sm">
+                    Approved:
+                    {" "}
+                    {vendor.is_approved ? "Yes" : "No"}
+                  </p>
 
-            <p className="text-sm">
-              Active:
-              {" "}
-              {vendor.is_active ? "Yes" : "No"}
-            </p>
-            <div className="mt-3 flex gap-2">
-  <button
-    onClick={() =>
-      updateVendor(vendor.id, {
-        is_approved: !vendor.is_approved,
-      })
-    }
-    className="rounded-full bg-green-500 px-4 py-2 text-sm text-white"
-  >
-    {vendor.is_approved ? 'Unapprove' : 'Approve'}
-  </button>
+                  <p className="text-sm">
+                    Active:
+                    {" "}
+                    {vendor.is_active ? "Yes" : "No"}
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() =>
+                        updateVendor(vendor.id, {
+                          is_approved: !vendor.is_approved,
+                        })
+                      }
+                      className="rounded-full bg-green-500 px-4 py-2 text-sm text-white"
+                    >
+                      {vendor.is_approved ? 'Unapprove' : 'Approve'}
+                    </button>
 
-  <button
-    onClick={() =>
-      updateVendor(vendor.id, {
-        is_active: !vendor.is_active,
-      })
-    }
-    className="rounded-full bg-red-500 px-4 py-2 text-sm text-white"
-  >
-    {vendor.is_active ? 'Deactivate' : 'Activate'}
-  </button>
-</div>
+                    <button
+                      onClick={() =>
+                        updateVendor(vendor.id, {
+                          is_active: !vendor.is_active,
+                        })
+                      }
+                      className="rounded-full bg-red-500 px-4 py-2 text-sm text-white"
+                    >
+                      {vendor.is_active ? 'Deactivate' : 'Activate'}
+                    </button>
+                  </div>
+                </div>
+
+
+              ))
+            ) : (
+              <p>No vendors found.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "productApproval" && (
+        <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+
+          <h2 className="text-xl font-semibold text-black">
+            {productStatusTab} Products
+          </h2>
+          <div className="mt-5 mb-6 flex gap-3">
+
+            <button
+              onClick={() => setProductStatusTab("Pending")}
+              className={`rounded-full px-5 py-2 ${productStatusTab === "Pending"
+                  ? "bg-orange-500 text-white"
+                  : "bg-slate-200"
+                }`}
+            >
+              Pending
+            </button>
+
+            <button
+              onClick={() => setProductStatusTab("Approved")}
+              className={`rounded-full px-5 py-2 ${productStatusTab === "Approved"
+                  ? "bg-green-600 text-white"
+                  : "bg-slate-200"
+                }`}
+            >
+              Approved
+            </button>
+
+            <button
+              onClick={() => setProductStatusTab("Rejected")}
+              className={`rounded-full px-5 py-2 ${productStatusTab === "Rejected"
+                  ? "bg-red-600 text-white"
+                  : "bg-slate-200"
+                }`}
+            >
+              Rejected
+            </button>
+
+          </div>
+          <div className="mt-6 space-y-4 text-black">
+
+            {approvalProducts.length ? (
+
+              approvalProducts
+                .filter(
+                  (product) => product.approval_status === productStatusTab
+                )
+                .map((product) => {
+                  console.log("Product Vendor ID:", product.vendor_id);
+                  console.log("Vendors:", vendors);
+                  const vendor = vendors.find(
+                    (v) => Number(v.id) === Number(product.vendor_id)
+                  );
+
+                  return (
+                    <div
+                      key={product.id}
+                      className="rounded-2xl border p-5"
+                    >
+
+                      <h3 className="text-lg font-semibold">
+                        {product.title}
+                      </h3>
+
+                      <p>Price : ₹{product.price}</p>
+
+                      <p>Vendor : {vendor?.name || "Unknown Vendor"}</p>
+
+                      <p>Email : {vendor?.email || "-"}</p>
+
+                      <p>Status : {product.approval_status}</p>
+
+                      {productStatusTab === "Pending" && (
+
+                        <div className="mt-4 flex gap-3">
+
+                          <button
+                            onClick={() =>
+                              updateProductApproval(product.id, {
+                                approval_status: "Approved",
+                                is_active: true,
+                              })
+                            }
+                            className="rounded-full bg-green-500 px-5 py-2 text-white"
+                          >
+                            Approve
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              updateProductApproval(product.id, {
+                                approval_status: "Rejected",
+                                is_active: false,
+                              })
+                            }
+                            className="rounded-full bg-red-500 px-5 py-2 text-white"
+                          >
+                            Reject
+                          </button>
+
+                        </div>
+
+                      )}
+
+                    </div>
+                  );
+                })
+
+            ) : (
+
+              // <p>No Pending Products</p>
+              <p>No {productStatusTab} Products</p>
+
+            )}
+
           </div>
 
-
-        ))
-      ) : (
-        <p>No vendors found.</p>
+        </div>
       )}
     </div>
-  </div>
-)}
-    
-  {activeTab === "productApproval" && (
-  <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
-
-    <h2 className="text-xl font-semibold text-black">
-      {productStatusTab} Products
-    </h2>
-<div className="mt-5 mb-6 flex gap-3">
-
-  <button
-    onClick={() => setProductStatusTab("Pending")}
-    className={`rounded-full px-5 py-2 ${
-      productStatusTab === "Pending"
-        ? "bg-orange-500 text-white"
-        : "bg-slate-200"
-    }`}
-  >
-    Pending
-  </button>
-
-  <button
-    onClick={() => setProductStatusTab("Approved")}
-    className={`rounded-full px-5 py-2 ${
-      productStatusTab === "Approved"
-        ? "bg-green-600 text-white"
-        : "bg-slate-200"
-    }`}
-  >
-    Approved
-  </button>
-
-  <button
-    onClick={() => setProductStatusTab("Rejected")}
-    className={`rounded-full px-5 py-2 ${
-      productStatusTab === "Rejected"
-        ? "bg-red-600 text-white"
-        : "bg-slate-200"
-    }`}
-  >
-    Rejected
-  </button>
-
-</div>
-    <div className="mt-6 space-y-4 text-black">
-
-{approvalProducts.length ? (
-
-  approvalProducts
- .filter(
-  (product) => product.approval_status === productStatusTab
-)
-  .map((product) => {
-console.log("Product Vendor ID:", product.vendor_id);
-console.log("Vendors:", vendors);
-    const vendor = vendors.find(
-  (v) => Number(v.id) === Number(product.vendor_id)
-);
-
-    return (
-      <div
-        key={product.id}
-        className="rounded-2xl border p-5"
-      >
-
-        <h3 className="text-lg font-semibold">
-          {product.title}
-        </h3>
-
-        <p>Price : ₹{product.price}</p>
-
-        <p>Vendor : {vendor?.name || "Unknown Vendor"}</p>
-
-        <p>Email : {vendor?.email || "-"}</p>
-
-        <p>Status : {product.approval_status}</p>
-
-        {productStatusTab === "Pending" && (
-
-<div className="mt-4 flex gap-3">
-
-  <button
-    onClick={() =>
-      updateProductApproval(product.id, {
-        approval_status: "Approved",
-        is_active: true,
-      })
-    }
-    className="rounded-full bg-green-500 px-5 py-2 text-white"
-  >
-    Approve
-  </button>
-
-  <button
-    onClick={() =>
-      updateProductApproval(product.id, {
-        approval_status: "Rejected",
-        is_active: false,
-      })
-    }
-    className="rounded-full bg-red-500 px-5 py-2 text-white"
-  >
-    Reject
-  </button>
-
-</div>
-
-)}
-
-      </div>
-    );
-  })
-
-) : (
-
- // <p>No Pending Products</p>
-  <p>No {productStatusTab} Products</p>
-
-)}
-
-    </div>
-
-  </div>
-)}
-</div>
   );
 } 

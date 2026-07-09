@@ -5,7 +5,7 @@ import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Link } from 'react-router-dom';
-import { books } from '../data/books';
+
 import { banners } from '../data/banners';
 
 import { authors } from '../data/authors';
@@ -20,8 +20,9 @@ export default function Home() {
   const [subscriber, setSubscriber] = useState('');
   const [categories, setCategories] = useState([]);
   console.log("HOME CATEGORIES =", categories);
-  const featured = books.slice(0, 4);
-  const bestSellers = books.slice(0, 3);
+  const [products, setProducts] = useState([]);
+  const featured = products.slice(0, 4);
+  const bestSellers = products.slice(0, 3);
 useEffect(() => {
   const loadCategories = async () => {
     try {
@@ -34,6 +35,24 @@ useEffect(() => {
   };
 
   loadCategories();
+}, []);
+
+useEffect(() => {
+  const loadProducts = async () => {
+    try {
+      const data = await apiFetch("/api/products");
+
+      console.log("HOME PRODUCTS =", data);
+
+      setProducts(data.products || data);
+
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  loadProducts();
+
 }, []);
   const handleSubscribe = (event) => {
     event.preventDefault();
@@ -86,7 +105,10 @@ useEffect(() => {
         </div>
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {featured.map((book) => (
-            <ProductCard key={book.slug} book={book} />
+            <ProductCard
+    key={book.id}
+    book={book}
+/>
           ))}
         </div>
       </section>
@@ -101,7 +123,10 @@ useEffect(() => {
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             {bestSellers.map((book) => (
-              <ProductCard key={book.slug} book={book} />
+              <ProductCard
+    key={book.id}
+    book={book}
+/>
             ))}
           </div>
         </div>

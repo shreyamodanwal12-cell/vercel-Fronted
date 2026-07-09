@@ -37,7 +37,7 @@ export default function Dashboard() {
         <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
           <p className="text-sm uppercase tracking-[0.28em] text-slate-500">Revenue</p>
          <p className="mt-4 text-4xl font-semibold text-slate-900">
- {dashboard ? `$${dashboard.totalRevenue.toFixed(2)}` : '—'}
+ {dashboard ? `₹${dashboard.totalRevenue.toFixed(2)}` : '—'}
 </p>
           <p className="mt-3 text-sm text-slate-500">Total revenue from recent orders.</p>
         </div>
@@ -47,8 +47,10 @@ export default function Dashboard() {
           <p className="mt-3 text-sm text-slate-500">Active shoppers in the store.</p>
         </div>
       </div>
+      
       <div className="mt-10 space-y-8">
         <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+          
           <h2 className="text-xl font-semibold text-slate-900">Recent orders</h2>
           <div className="mt-6 space-y-4">
             {dashboard?.recentOrders?.length ? (
@@ -59,7 +61,7 @@ export default function Dashboard() {
                     <p className="text-sm text-slate-500">Status: {order.status}</p>
                   </div>
                   <p className="text-sm font-semibold text-slate-900">
-  ${order.total.toFixed(2)}
+ ₹{Number(order.total).toFixed(2)}
 </p>
                 </div>
               ))
