@@ -1,5 +1,6 @@
-import { FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
 import { useState } from "react";
+import { FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
+import { apiFetch } from "../utils/api";
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,14 +14,14 @@ export default function Contact() {
   try {
     const res = await apiFetch("/api/contact", {
       method: "POST",
-      body: form,
+      body: formData,
     });
 
     console.log(res);
 
     alert("Message sent successfully");
 
-    setForm({
+    setFormData({
       name: "",
       email: "",
       message: "",
@@ -69,21 +70,74 @@ export default function Contact() {
             </div>
           </div>
         </div>
-        <form className="space-y-6 rounded-[32px] text-black border border-slate-200 bg-white p-8 shadow-soft">
-          <div>
-            <label className="block text-sm font-semibold  text-slate-900">Name</label>
-            <input type="text" placeholder="Your name" className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500" />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-slate-900">Email</label>
-            <input type="email" placeholder="you@example.com" className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500" />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-slate-900">Message</label>
-            <textarea rows="5" placeholder="How can we help?" className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500"></textarea>
-          </div>
-          <button type="submit" className="w-full rounded-full bg-orange-500 px-6 py-4 text-sm font-semibold text-white transition hover:bg-orange-600">Send message</button>
-        </form>
+       <form
+  onSubmit={handleSubmit}
+  className="space-y-6 rounded-[32px] text-black border border-slate-200 bg-white p-8 shadow-soft"
+>
+  <div>
+    <label className="block text-sm font-semibold text-slate-900">
+      Name
+    </label>
+
+    <input
+      type="text"
+      placeholder="Your name"
+      value={formData.name}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          name: e.target.value,
+        })
+      }
+      className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500"
+    />
+  </div>
+
+  <div>
+    <label className="block text-sm font-semibold text-slate-900">
+      Email
+    </label>
+
+    <input
+      type="email"
+      placeholder="you@example.com"
+      value={formData.email}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          email: e.target.value,
+        })
+      }
+      className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500"
+    />
+  </div>
+
+  <div>
+    <label className="block text-sm font-semibold text-slate-900">
+      Message
+    </label>
+
+    <textarea
+      rows="5"
+      placeholder="How can we help?"
+      value={formData.message}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          message: e.target.value,
+        })
+      }
+      className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none focus:border-orange-500"
+    />
+  </div>
+
+  <button
+    type="submit"
+    className="w-full rounded-full bg-orange-500 px-6 py-4 text-sm font-semibold text-white transition hover:bg-orange-600"
+  >
+    Send message
+  </button>
+</form>
       </div>
     </div>
   );
