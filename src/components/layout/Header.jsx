@@ -42,7 +42,13 @@ export default function Header() {
 
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-3xl font-extrabold tracking-tight text-slate-900">iBid.</Link>
+          <Link to="/">
+  <img
+    src="/images/wiki.jpg"
+    alt="WikCart"
+    className="h-14 w-auto"
+  />
+</Link>
           <nav className="hidden items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-2 md:flex">
             {navItems.map((item) => (
               <NavLink

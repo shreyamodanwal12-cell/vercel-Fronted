@@ -1,6 +1,37 @@
 import { FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
-
+import { useState } from "react";
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await apiFetch("/api/contact", {
+      method: "POST",
+      body: form,
+    });
+
+    console.log(res);
+
+    alert("Message sent successfully");
+
+    setForm({
+      name: "",
+      email: "",
+      message: "",
+    });
+  } catch (err) {
+    console.error(err);
+
+    alert("Error: " + err.message);
+  }
+};
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">

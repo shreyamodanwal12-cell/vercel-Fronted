@@ -21,27 +21,7 @@ export default function Shop() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
    
-// useEffect(() => {
-//   apiFetch('/api/books')
-//     .then((res) => {
-//       console.log("FULL API RESPONSE:", res);
 
-//       const booksData =
-//         Array.isArray(res)
-//           ? res
-//           : Array.isArray(res?.data)
-//           ? res.data
-//           : Array.isArray(res?.book)
-//           ? res.book
-//           : [];
-
-//       setBooks(booksData);
-//     })
-//     .catch((err) => {
-//       console.error("API ERROR:", err);
-//       // ⚠️ only error case me empty karo
-//     });
-// }, []);
 
 useEffect(() => {
   apiFetch('/api/products')
@@ -60,9 +40,11 @@ useEffect(() => {
   const [books, setBooks] = useState([]);
 console.log("books STATE SAMPLE:", books[0]);
 console.log("BOOK 1 =", books[0]);
- const availableCategories = [
-  'All',
-  ...new Set((books || []).map((book) => book.category))
+const availableCategories = [
+  "All",
+  ...new Set(
+    books.map((book) => book.categories?.title).filter(Boolean)
+  ),
 ];
 
 
@@ -71,31 +53,63 @@ console.log("BOOK 1 =", books[0]);
   ...new Set((books || []).map((book) => book.author))
 ];
 
-//   const filteredBooks = useMemo(() => {
-//     return books
-//       .filter((book) => (categoryFilter === 'All' ? true : book.category === categoryFilter))
-//       .filter((book) => (authorFilter === 'All' ? true : book.author === authorFilter))
-//       .filter((book) =>
-//   ratingFilter === 'All'
-//     ? true
-//     : Number(book.rating || 0) >= Number(ratingFilter)
-// )
-//       .filter((book) =>
-//   (book.title || "")
-//     .toLowerCase()
-//     .includes(search.toLowerCase()) ||
-//   (book.author || "")
-//     .toLowerCase()
-//     .includes(search.toLowerCase())
-// )
-//       .sort((a, b) => {
-//         if (sortBy === 'Price: Low to High') return a.price - b.price;
-//         if (sortBy === 'Price: High to Low') return b.price - a.price;
-//         if (sortBy === 'Rating') return b.rating - a.rating;
-//         return b.reviews - a.reviews;
-//       });
-//   }, [categoryFilter, authorFilter, ratingFilter, search, sortBy]);
-const filteredBooks = books;
+
+const filteredBooks = useMemo(() => {
+  let filtered = [...books];
+
+  // Search
+  if (search) {
+    filtered = filtered.filter(
+      (book) =>
+        book.title?.toLowerCase().includes(search.toLowerCase()) ||
+        book.author?.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+
+  // Category
+  if (categoryFilter !== "All") {
+    filtered = filtered.filter(
+  (book) => book.categories?.title === categoryFilter
+);
+  }
+  // Author
+  if (authorFilter !== "All") {
+    filtered = filtered.filter(
+      (book) => book.author === authorFilter
+    );
+  }
+
+  // Rating
+  if (ratingFilter !== "All") {
+    filtered = filtered.filter(
+      (book) => Number(book.rating) >= Number(ratingFilter)
+    );
+  }
+
+  // Sorting
+  if (sortBy === "Price: Low to High") {
+    filtered.sort((a, b) => a.price - b.price);
+  }
+
+  if (sortBy === "Price: High to Low") {
+    filtered.sort((a, b) => b.price - a.price);
+  }
+
+  if (sortBy === "Rating") {
+    filtered.sort((a, b) => b.rating - a.rating);
+  }
+
+  return filtered;
+},
+ [
+  books,
+  search,
+  categoryFilter,
+  authorFilter,
+  ratingFilter,
+  sortBy,
+]);
+
   const paginatedBooks = filteredBooks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 console.log("books DATA:", books);
 console.log("FILTERED:", filteredBooks);
@@ -216,7 +230,7 @@ console.log("PAGINATED:", paginatedBooks);
                     <img src={book.cover} alt={book.title} className="h-72 w-full rounded-3xl object-cover" />
                     <div className="space-y-4">
                       <div className="flex items-center justify-between gap-4">
-                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">{book.category}</span>
+                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">{book.categories?.title}</span>
                         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{book.badge}</span>
                       </div>
                       <div>
@@ -236,7 +250,7 @@ console.log("PAGINATED:", paginatedBooks);
   ${Number(book.old_price || 0).toFixed(2)}
 </p>
                         </div>
-                        console.log(product);
+                        
                         <button
                           onClick={() => addToCart({
   ...book,

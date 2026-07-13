@@ -39,17 +39,21 @@ useEffect(() => {
 
 useEffect(() => {
   const loadProducts = async () => {
-    try {
-      const data = await apiFetch("/api/products");
+  try {
+    const vendorId = localStorage.getItem("VENDOR_ID");
 
-      console.log("HOME PRODUCTS =", data);
+    const data = await apiFetch(
+      `/api/products?vendor_id=${vendorId}`
+    );
 
-      setProducts(data.products || data);
+    console.log("HOME PRODUCTS =", data);
 
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    setProducts(data.products || data);
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   loadProducts();
 

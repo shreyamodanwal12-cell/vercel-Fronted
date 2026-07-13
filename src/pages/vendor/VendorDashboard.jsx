@@ -161,7 +161,7 @@ const totalRevenue = orders.reduce(
         </div>
 <div className="mt-10 rounded-2xl bg-white p-6 shadow-sm">
 
-  <div className="flex items-center justify-between">
+  <div className="flex items-center text-black justify-between">
 
     <h2 className="text-xl font-semibold text-slate-800">
       Recent Orders
@@ -190,7 +190,7 @@ const totalRevenue = orders.reduce(
 
         <div
           key={order.id}
-          className="flex items-center justify-between border-b py-4"
+          className="flex items-center text-black justify-between border-b py-4"
         >
 
           <div>

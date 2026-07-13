@@ -370,7 +370,7 @@ export default function AdminPanel() {
         warranty: productForm.warranty || null,
 
         country: productForm.country || null,
-        vendor_id: Number(localStorage.getItem("VENDOR_ID")) || null,
+       vendor_id: null,
       };
 
       console.log("PRODUCT PAYLOAD =", payload);
@@ -390,9 +390,6 @@ export default function AdminPanel() {
 
         setMessage("Product created successfully");
       }
-
-
-
 
       const data = await apiFetch("/api/products");
       setProducts(data);
@@ -865,7 +862,7 @@ const COLORS = [
 
                 <div
                   key={cat.id}
-                  className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft transition hover:shadow-lg"
+                  className="rounded-3xl border border-slate-200 text-black bg-white p-6 shadow-soft transition hover:shadow-lg"
                 >
 
                   <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -1584,7 +1581,7 @@ const COLORS = [
 
           </form>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-8 text-black space-y-4">
             <h2 className="text-xl text-black font-semibold ">Products</h2>
 
             {products.map((product) => (
