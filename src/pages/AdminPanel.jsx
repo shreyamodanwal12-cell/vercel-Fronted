@@ -68,6 +68,12 @@ const defaultProduct = {
   sku: "",
   image: "",
   description: "",
+
+  brand: "",
+  color: "",
+  size: "",
+  warranty: "",
+  country: "",
 };
 export default function AdminPanel() {
   const [token, setToken] = useState(localStorage.getItem('IBID_ADMIN_TOKEN') || '');
@@ -101,6 +107,8 @@ export default function AdminPanel() {
     (sub) => String(sub.category_id) === String(productForm.category_id)
   );
   const [productStatusTab, setProductStatusTab] = useState("Pending");
+  const [vendorFilter, setVendorFilter] = useState("all");
+
   useEffect(() => {
     if (token) {
       localStorage.setItem('IBID_ADMIN_TOKEN', token);
@@ -352,6 +360,16 @@ export default function AdminPanel() {
         sku: productForm.sku,
 
         image: productForm.image,
+       
+        brand: productForm.brand || null,
+
+        color: productForm.color || null,
+
+        size: productForm.size || null,
+
+        warranty: productForm.warranty || null,
+
+        country: productForm.country || null,
         vendor_id: Number(localStorage.getItem("VENDOR_ID")) || null,
       };
 
@@ -402,6 +420,11 @@ export default function AdminPanel() {
       stock: product.stock || "",
       sku: product.sku || "",
       image: product.image || "",
+      brand: product.brand || null,
+      color: product.color || null,
+      size: product.size || null,
+      warranty: product.warranty || null,
+      country: product.country || null,
     });
   };
 
@@ -1290,7 +1313,8 @@ const COLORS = [
     </div>
     </div>
   ))}
-</div>  */}
+</div>  */
+}
                   <input value={bookForm.category} onChange={(e) => handleBookFormChange('category', e.target.value)} placeholder="Category" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                   <input value={bookForm.price} onChange={(e) => handleBookFormChange('price', e.target.value)} type="number" step="0.01" placeholder="Price" className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-black outline-none focus:border-orange-500" />
                 </div>
@@ -1487,7 +1511,70 @@ const COLORS = [
               }
               className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
             />
+            <input
+  type="text"
+  placeholder="Brand"
+  value={productForm.brand || ""}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      brand: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+/>
 
+<input
+  type="text"
+  placeholder="Color"
+  value={productForm.color || ""}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      color: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+/>
+
+<input
+  type="text"
+  placeholder="Size"
+  value={productForm.size || ""}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      size: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+/>
+
+<input
+  type="text"
+  placeholder="Warranty"
+  value={productForm.warranty || ""}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      warranty: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+/>
+
+<input
+  type="text"
+  placeholder="Country"
+  value={productForm.country || ""}
+  onChange={(e) =>
+    setProductForm({
+      ...productForm,
+      country: e.target.value,
+    })
+  }
+  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-black"
+/>
             <button
               type="submit"
               className="rounded-full bg-orange-500 px-6 py-3 text-white"
@@ -1519,6 +1606,26 @@ const COLORS = [
                   <p className="text-sm text-gray-500">
                     {product.subcategories?.title}
                   </p>
+
+                <p className="text-sm text-gray-500">
+  Brand: {product.brand || "N/A"}
+</p>
+
+<p className="text-sm text-gray-500">
+  Color: {product.color || "N/A"}
+</p>
+
+<p className="text-sm text-gray-500">
+  Size: {product.size || "N/A"}
+</p>
+
+<p className="text-sm text-gray-500">
+  Warranty: {product.warranty || "N/A"}
+</p>
+
+<p className="text-sm text-gray-500">
+  Country: {product.country || "N/A"}
+</p>
                 </div>
 
                 <div className="flex gap-2">
@@ -1551,6 +1658,7 @@ const COLORS = [
                 <div key={order.id} className="rounded-3xl border border-slate-100 p-4">
 
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
                     <div>
                       <h3 className="font-semibold text-slate-900">
                         Order #{order.id}
@@ -1567,7 +1675,27 @@ const COLORS = [
                         ? new Date(order.created_at).toLocaleString()
                         : "No Date"}
                     </p>
+                    
                   </div>
+
+              
+
+<div className="mt-4 border-t pt-4 space-y-2">
+  <p className="text-sm text-slate-700">
+    <span className="font-semibold">Customer Name:</span>{" "}
+    {order.customer_name || "N/A"}
+  </p>
+
+  <p className="text-sm text-slate-700">
+    <span className="font-semibold">Phone:</span>{" "}
+    {order.customer_phone || "N/A"}
+  </p>
+
+  <p className="text-sm text-slate-700">
+    <span className="font-semibold">Address:</span>{" "}
+    {order.customer_address || "N/A"}
+  </p>
+</div>
 
                   {/* 👇 CLICK BUTTON ADDED HERE */}
                   <div className="mt-3 flex justify-end">
@@ -1582,8 +1710,8 @@ const COLORS = [
                   {/* ITEMS */}
                   <div className="mt-3 grid gap-2 rounded-3xl bg-slate-50 p-4 text-sm text-slate-700">
                     {(order.items || []).length ? (
-                      order.items.map((item) => (
-                        <div key={item.id} className="flex justify-between border-b py-2">
+                      (order.items || []).map((item) => (
+                        <div key={item.id || item.book_id}className="flex justify-between border-b py-2">
                           <div>
                             <p className="font-semibold">{item.title}</p>
                             <p className="text-sm text-gray-500">
@@ -1611,6 +1739,8 @@ const COLORS = [
             </div>
           </div>
         </div>
+
+        
       )}
       {/* ------------subcategory------------ */}
       {activeTab === 'subcategories' && (
@@ -1623,10 +1753,27 @@ const COLORS = [
             {users.length ? users.map((user) => (
               <div key={user.id} className="flex flex-col gap-2 rounded-3xl border border-slate-100 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h3 className="font-semibold text-slate-900">{user.name}</h3>
-                  <p className="text-sm text-slate-500">{user.email}</p>
-                </div>
-                <span className="rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-700">{user.role}</span>
+  <h3 className="font-semibold text-slate-900">{user.name}</h3>
+  <p className="text-sm text-slate-500">{user.email}</p>
+</div>
+
+<div className="flex gap-2">
+  <span className="rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-700">
+    {user.role}
+  </span>
+
+  <span
+    className={`rounded-full px-4 py-2 text-sm font-semibold ${
+      user.is_active
+        ? "bg-green-100 text-green-700"
+        : "bg-red-100 text-red-700"
+    }`}
+  >
+    {user.is_active ? "Active" : "Inactive"}
+  </span>
+</div>
+
+                
               </div>
             )) : (
               <p className="text-sm text-slate-500">No users found.</p>
@@ -1640,10 +1787,65 @@ const COLORS = [
           <h2 className="text-xl font-semibold text-slate-900">
             Vendors
           </h2>
+<div className="mt-4 flex gap-2 flex-wrap">
+  <button
+    onClick={() => setVendorFilter("all")}
+    className="rounded-full bg-orange-500 text-white px-4 py-2"
+  >
+    All
+  </button>
 
-          <div className="mt-6 grid gap-4">
+  <button
+    onClick={() => setVendorFilter("approved")}
+    className="rounded-full bg-orange-500 text-white px-4 py-2"
+  >
+    Approved
+  </button>
+
+  <button
+    onClick={() => setVendorFilter("unapproved")}
+    className="rounded-full bg-orange-500 text-white px-4 py-2"
+  >
+    Unapproved
+  </button>
+
+  <button
+    onClick={() => setVendorFilter("active")}
+    className="rounded-full bg-orange-500 text-white px-4 py-2"
+  >
+    Active
+  </button>
+
+  <button
+    onClick={() => setVendorFilter("inactive")}
+    className="rounded-full bg-orange-500 text-white px-4 py-2"
+  >
+    Inactive
+  </button>
+</div>
+          <div className="mt-6 grid text-black gap-4">
             {vendors.length ? (
-              vendors.map((vendor) => (
+              vendors
+  .filter((vendor) => {
+    if (vendorFilter === "approved") {
+      return vendor.is_approved;
+    }
+
+    if (vendorFilter === "unapproved") {
+      return !vendor.is_approved;
+    }
+
+    if (vendorFilter === "active") {
+      return vendor.is_active;
+    }
+
+    if (vendorFilter === "inactive") {
+      return !vendor.is_active;
+    }
+
+    return true;
+  })
+  .map((vendor) => (
                 <div
                   key={vendor.id}
                   className="rounded-3xl border border-slate-100 bg-slate-50 p-4"
@@ -1713,7 +1915,7 @@ const COLORS = [
               onClick={() => setProductStatusTab("Pending")}
               className={`rounded-full px-5 py-2 ${productStatusTab === "Pending"
                   ? "bg-orange-500 text-white"
-                  : "bg-slate-200"
+                  : "bg-orange-500"
                 }`}
             >
               Pending
@@ -1723,7 +1925,7 @@ const COLORS = [
               onClick={() => setProductStatusTab("Approved")}
               className={`rounded-full px-5 py-2 ${productStatusTab === "Approved"
                   ? "bg-green-600 text-white"
-                  : "bg-slate-200"
+                  : "bg-orange-500"
                 }`}
             >
               Approved
@@ -1732,8 +1934,8 @@ const COLORS = [
             <button
               onClick={() => setProductStatusTab("Rejected")}
               className={`rounded-full px-5 py-2 ${productStatusTab === "Rejected"
-                  ? "bg-red-600 text-white"
-                  : "bg-slate-200"
+                  ? "bg-orange-500  text-white"
+                  : "bg-orange-500"
                 }`}
             >
               Rejected

@@ -133,11 +133,43 @@ className="h-[520px] w-full rounded-[32px] object-cover" />
             <div className="mt-8 text-slate-600">
               {activeTab === 'description' && <p>{book.description}</p>}
              {activeTab === 'information' && (
-  <div className="space-y-3 text-sm text-slate-700">
-    <p><strong>Pages:</strong> {book.pages || "N/A"}</p>
-    <p><strong>Language:</strong> {book.language || "N/A"}</p>
-    <p><strong>Publisher:</strong> {book.publisher || "N/A"}</p>
-    <p><strong>ISBN:</strong> {book.isbn || "N/A"}</p>
+  <div className="grid gap-4 sm:grid-cols-2 text-sm text-slate-700">
+
+    <div className="rounded-2xl bg-slate-50 p-4">
+      <p className="font-semibold">Brand</p>
+      <p>{book.brand || "N/A"}</p>
+    </div>
+
+    <div className="rounded-2xl bg-slate-50 p-4">
+      <p className="font-semibold">Color</p>
+      <p>{book.color || "N/A"}</p>
+    </div>
+
+    <div className="rounded-2xl bg-slate-50 p-4">
+      <p className="font-semibold">Size</p>
+      <p>{book.size || "N/A"}</p>
+    </div>
+
+    <div className="rounded-2xl bg-slate-50 p-4">
+      <p className="font-semibold">Warranty</p>
+      <p>{book.warranty || "N/A"}</p>
+    </div>
+
+    <div className="rounded-2xl bg-slate-50 p-4">
+      <p className="font-semibold">Country</p>
+      <p>{book.country || "N/A"}</p>
+    </div>
+
+    <div className="rounded-2xl bg-slate-50 p-4">
+      <p className="font-semibold">Stock</p>
+      <p>{book.stock || "N/A"}</p>
+    </div>
+
+    <div className="rounded-2xl bg-slate-50 p-4">
+      <p className="font-semibold">SKU</p>
+      <p>{book.sku || "N/A"}</p>
+    </div>
+
   </div>
 )}
               {activeTab === 'reviews' && (
