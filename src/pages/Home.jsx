@@ -23,6 +23,32 @@ export default function Home() {
   const [products, setProducts] = useState([]);
   const featured = products.slice(0, 4);
   const bestSellers = products.slice(0, 3);
+  const [offers, setOffers] = useState([]);
+const [user, setUser] = useState(null);
+
+  const referralCode = user?.referral_code || "Loading...";
+const shareReferral = () => {
+  const message = `Use my referral code ${referralCode} and get ₹50 discount!`;
+
+  window.open(
+    `https://wa.me/?text=${encodeURIComponent(message)}`
+  );
+};
+  useEffect(() => {
+  const fetchOffers = async () => {
+    try {
+      const data = await apiFetch("/api/offers");
+
+      console.log("OFFERS =", data);
+
+      setOffers(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  fetchOffers();
+}, []);
 useEffect(() => {
   const loadCategories = async () => {
     try {
@@ -58,6 +84,13 @@ useEffect(() => {
   loadProducts();
 
 }, []);
+useEffect(() => {
+  const savedUser = JSON.parse(
+    localStorage.getItem("IBID_USER")
+  );
+
+  setUser(savedUser);
+}, []);
   const handleSubscribe = (event) => {
     event.preventDefault();
     const email = event.target.email.value.trim();
@@ -69,6 +102,22 @@ useEffect(() => {
 
   return (
     <div className="space-y-20 py-10 lg:py-16">
+{offers.length > 0 && (
+  <div className="mb-8 rounded-3xl bg-gradient-to-r from-orange-500 to-red-500 p-6 text-white shadow-lg">
+    <p className="text-sm font-semibold uppercase tracking-[0.3em]">
+      Limited Time Offer
+    </p>
+
+    <h2 className="mt-2 text-3xl font-bold">
+      🎉 Get {offers[0].discount}% OFF using {offers[0].code}
+    </h2>
+
+    <p className="mt-3 text-orange-100">
+      Valid till {offers[0].end_date}
+    </p>
+  </div>
+)}
+
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Swiper
           modules={[Navigation, Autoplay]}
@@ -257,6 +306,30 @@ useEffect(() => {
           ))}
         </div>
       </section>
+      <div className="rounded-3xl border border-orange-200 bg-orange-50 p-6 shadow-md">
+
+  <p className="text-sm font-semibold uppercase tracking-[0.3em] text-orange-500">
+    Refer & Earn
+  </p>
+
+  <h2 className="mt-2 text-3xl font-bold text-slate-900">
+    🎁 Invite Friends & Earn ₹50
+  </h2>
+
+  <p className="mt-3 text-slate-600">
+    Share your referral code with friends and both of you will get rewards.
+  </p>
+<div className="mt-4 rounded-2xl bg-white p-3 text-center font-bold text-orange-600 shadow">
+  Your referral code: {referralCode}
+</div>
+  <button
+  onClick={shareReferral}
+  className="mt-5 rounded-full bg-orange-500 px-6 py-3 text-white font-semibold transition hover:bg-orange-600"
+>
+  Invite Now
+</button>
+
+</div>
     </div>
   );
 }

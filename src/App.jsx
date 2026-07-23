@@ -36,6 +36,7 @@ import AdminProtectedRoute from "./pages/admin/AdminProtectedRoute";
 import AddProduct from "./pages/vendor/AddProduct";
 import VendorOrders from "./pages/vendor/VendorOrders";
 import VendorProtectedRoute from "./pages/vendor/VendorProtectedRoute";
+import MyOrders from "./pages/MyOrders";
 function App() {
   return (
     <Router>
@@ -54,6 +55,10 @@ function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route
+  path="/orders/:id"
+  element={<OrderDetails />}
+/>
             <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/admin" element={<AdminPanelPage />} />
             <Route path="/admin/orders/:id" element={<OrderDetails />} />
@@ -119,6 +124,16 @@ function App() {
     </VendorProtectedRoute>
   }
 />
+
+<Route
+  path="/my-orders"
+  element={
+    <ProtectedRoute>
+      <MyOrders />
+    </ProtectedRoute>
+  }
+/>
+
           </Routes>
           
         </AnimatePresence>

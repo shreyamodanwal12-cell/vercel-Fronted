@@ -8,6 +8,7 @@ export default function Wishlist() {
   useEffect(() => {
     const data =
       JSON.parse(localStorage.getItem("wishlist")) || [];
+ console.log(data);
 
     setWishlistItems(data);
   }, []);
@@ -42,21 +43,28 @@ export default function Wishlist() {
               key={book.id}
               className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-soft"
             >
-              <img
-                src={book.cover}
-                alt={book.title}
-                className="h-56 w-full rounded-3xl object-cover"
-              />
+            <img
+  src={
+    book.image
+      ? `/images/${book.image}`
+      : book.cover
+      ? `/images/${book.cover}`
+      : "/images/default-book.jpg"
+  }
+  alt={book.title}
+  className="h-56 w-full rounded-3xl object-cover"
+/>
 
               <div className="mt-5 space-y-3">
                 <h2 className="text-lg font-semibold text-slate-900">
                   {book.title}
                 </h2>
-
-                <p className="text-sm text-slate-500">
-                  by {book.author}
-                </p>
-
+                
+                {book.author && (
+  <p className="text-sm text-slate-500">
+    by {book.author}
+  </p>
+)}
                 <p className="text-sm font-semibold text-orange-600">
                   ${book.price}
                 </p>

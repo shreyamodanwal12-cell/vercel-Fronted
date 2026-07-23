@@ -10,7 +10,11 @@ export default function OrderDetails() {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const res = await apiFetch(`/api/orders/${id}`);
+        const userId = localStorage.getItem("IBID_USER_ID");
+
+const res = await apiFetch(
+  `/api/orders/${id}?user_id=${userId}`
+);
         setOrder(res);
       } catch (err) {
         console.log(err);
@@ -25,122 +29,79 @@ export default function OrderDetails() {
   if (loading) return <p>Loading...</p>;
 
   if (!order) return <p>Order not found</p>;
+  console.log(order.items);
+return (
+  <div className="min-h-screen bg-slate-100 p-6">
+    <div className="mx-auto max-w-5xl">
 
-  return (
-
-  <div className="min-h-screen bg-slate-100 text-black p-8">
-
-    <div className="mx-auto max-w-5xl rounded-3xl bg-white p-8 shadow-xl">
-
-      <h1 className="text-4xl font-bold text-slate-900">
-        Order #{order.id}
+      <h1 className="mb-6 text-3xl font-bold text-slate-800">
+        Order Details
       </h1>
 
-      <p className="mt-2 text-slate-500">
-        Complete order information
-      </p>
+      <div className="rounded-3xl bg-white p-6 shadow-lg">
 
-      {/* Top cards */}
+        <div className="mb-6 flex flex-col gap-3 border-b pb-4 md:flex-row md:items-center md:justify-between">
 
-      <div className="mt-8 grid gap-5 md:grid-cols-3">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">
+              Order #{order.id}
+            </h2>
 
-        <div className="rounded-2xl bg-orange-50 p-5">
-          <p className="text-sm text-slate-500">Status</p>
+            <p className="mt-1 text-slate-500">
+              Total Amount: ₹{order.total}
+            </p>
+          </div>
 
-          <h2 className="mt-2 text-xl font-bold text-orange-600">
+          <span
+            className={`rounded-full px-4 py-2 text-sm font-semibold ${
+              order.status === "Delivered"
+                ? "bg-green-100 text-green-700"
+                : "bg-orange-100 text-orange-700"
+            }`}
+          >
             {order.status}
-          </h2>
-        </div>
-
-        <div className="rounded-2xl bg-green-50 p-5">
-          <p className="text-sm text-slate-500">Total Amount</p>
-
-          <h2 className="mt-2 text-xl font-bold text-green-600">
-            ₹{order.total}
-          </h2>
-        </div>
-
-        <div className="rounded-2xl bg-blue-50 p-5">
-          <p className="text-sm text-slate-500">Date</p>
-
-          <h2 className="mt-2 text-lg font-bold text-blue-600">
-            {new Date(order.created_at).toLocaleString()}
-          </h2>
-        </div>
-
-      </div>
-
-      {/* Customer Details */}
-
-      <div className="mt-8 rounded-2xl text-black border p-6">
-
-        <h2 className="mb-4 text-black font-bold">
-          Customer Details
-        </h2>
-
-        <div className="space-y-3">
-
-          <p>
-            <span className="font-semibold">
-              Name:
-            </span>{" "}
-            {order.customer_name}
-          </p>
-
-          <p>
-            <span className="font-semibold">
-              Phone:
-            </span>{" "}
-            {order.customer_phone}
-          </p>
-
-          <p>
-            <span className="font-semibold">
-              Address:
-            </span>{" "}
-            {order.customer_address}
-          </p>
+          </span>
 
         </div>
 
-      </div>
-
-      {/* Ordered Products */}
-
-      <div className="mt-8">
-
-        <h2 className="mb-4 text-black font-bold">
+        <h3 className="mb-4 text-xl font-semibold text-slate-800">
           Ordered Items
-        </h2>
+        </h3>
 
         <div className="space-y-4">
 
-          {order.items?.map((item , index) => (
+          {order.items?.map((item, i) => (
 
             <div
-              key={index}
-              className="flex items-center justify-between rounded-2xl border p-5 shadow-sm"
+              key={i}
+              className="flex flex-col gap-4 rounded-2xl border border-slate-200 p-4 md:flex-row"
             >
 
-              <div>
+            <img
+  src={
+    order.items?.[0]?.image
+      ? `/images/${order.items[0].image}`
+      : "/images/default-book.jpg"
+  }
+  alt={order.items?.[0]?.title}
+  className="h-28 w-24 rounded-xl object-cover"
+/>
 
-                <h3 className="text-lg font-semibold">
+              <div className="flex-1">
+
+                <h2 className="text-xl font-semibold text-slate-900">
                   {item.title}
-                </h3>
+                </h2>
 
-                <p className="text-sm text-slate-500">
-                  Vendor ID: {item.vendor_id}
+                <p className="mt-2 text-slate-500">
+                  Book ID: {item.book_id || item.id}
                 </p>
 
-              </div>
-
-              <div className="text-right">
-
-                <p>
-                  Qty: {item.quantity}
+                <p className="mt-2 text-slate-500">
+                  Quantity: {item.quantity}
                 </p>
 
-                <p className="font-bold text-orange-600">
+                <p className="mt-2 text-lg font-bold text-orange-600">
                   ₹{item.price}
                 </p>
 
@@ -155,8 +116,6 @@ export default function OrderDetails() {
       </div>
 
     </div>
-
   </div>
-
-  );
+);
 }

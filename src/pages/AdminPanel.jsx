@@ -29,6 +29,7 @@ const tabs = [
   { key: 'users', label: 'Users' },
   { key: 'vendors', label: 'Vendors' },
   { key: 'productApproval', label: 'Product Approval' },
+  { key: 'offers', label: 'Offers' },
 ];
 const defaultBook = {
   title: '',
@@ -108,7 +109,40 @@ export default function AdminPanel() {
   );
   const [productStatusTab, setProductStatusTab] = useState("Pending");
   const [vendorFilter, setVendorFilter] = useState("all");
+  const [offerForm, setOfferForm] = useState({
+  code: "",
+  discount: "",
+  startDate: "",
+  endDate: "",
+});
 
+const [offers, setOffers] = useState([]);
+
+const saveOffer = async () => {
+  try {
+    await apiFetch("/api/offers", {
+      method: "POST",
+      body: {
+        code: offerForm.code,
+        discount: Number(offerForm.discount),
+        start_date: offerForm.startDate,
+        end_date: offerForm.endDate,
+      },
+    });
+
+    alert("Offer added successfully");
+
+    setOfferForm({
+      code: "",
+      discount: "",
+      startDate: "",
+      endDate: "",
+    });
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+};
   useEffect(() => {
     if (token) {
       localStorage.setItem('IBID_ADMIN_TOKEN', token);
@@ -201,6 +235,15 @@ export default function AdminPanel() {
 
         setVendors(vendorsData);
       }
+      if (activeTab === "offers") {
+  const offersData = await apiFetch("/api/offers");
+
+  console.log("OFFERS =", offersData);
+
+  setOffers(offersData);
+}
+
+
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -2019,6 +2062,140 @@ const COLORS = [
 
         </div>
       )}
+
+      {
+  activeTab === "offers" && (
+    <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-soft">
+
+      <div className="mb-8 flex items-center justify-between">
+
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-orange-500">
+            Offers
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-slate-900">
+            Manage Promo Codes
+          </h2>
+
+          <p className="mt-2 text-slate-500">
+            Create and manage discount coupons for users.
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-orange-50 px-6 py-4 text-center">
+          <p className="text-sm text-slate-500">
+            Total Offers
+          </p>
+
+          <h3 className="text-3xl font-bold text-orange-600">
+            {offers.length}
+          </h3>
+        </div>
+
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2">
+
+        <input
+          type="text"
+          placeholder="Coupon code (SAVE20)"
+          value={offerForm.code}
+          onChange={(e) =>
+            setOfferForm({
+              ...offerForm,
+              code: e.target.value,
+            })
+          }
+          className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-black outline-none focus:border-orange-500"
+        />
+
+        <input
+          type="number"
+          placeholder="Discount (%)"
+          value={offerForm.discount}
+          onChange={(e) =>
+            setOfferForm({
+              ...offerForm,
+              discount: e.target.value,
+            })
+          }
+          className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-black outline-none focus:border-orange-500"
+        />
+
+        <input
+          type="date"
+          value={offerForm.startDate}
+          onChange={(e) =>
+            setOfferForm({
+              ...offerForm,
+              startDate: e.target.value,
+            })
+          }
+          className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-black outline-none focus:border-orange-500"
+        />
+
+        <input
+          type="date"
+          value={offerForm.endDate}
+          onChange={(e) =>
+            setOfferForm({
+              ...offerForm,
+              endDate: e.target.value,
+            })
+          }
+          className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-black outline-none focus:border-orange-500"
+        />
+
+      </div>
+
+      <button
+        onClick={saveOffer}
+        className="mt-6 rounded-full bg-orange-500 px-8 py-3 font-semibold text-white transition hover:bg-orange-600"
+      >
+        Add Offer
+      </button>
+
+      <div className="mt-10 grid gap-5 md:grid-cols-2">
+
+        {offers.map((offer, index) => (
+          <div
+            key={index}
+            className="rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm"
+          >
+
+            <div className="flex items-center justify-between">
+
+              <h3 className="text-2xl font-bold text-slate-900">
+                {offer.code}
+              </h3>
+
+              <span className="rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-600">
+                {offer.discount}% OFF
+              </span>
+
+            </div>
+
+            <div className="mt-5 space-y-2 text-slate-600">
+
+              <p>
+                📅 Start Date: {offer.startDate}
+              </p>
+
+              <p>
+                ⏳ End Date: {offer.endDate}
+              </p>
+
+            </div>
+
+          </div>
+        ))}
+
+      </div>
+
+    </div>
+  )
+}
     </div>
   );
 } 

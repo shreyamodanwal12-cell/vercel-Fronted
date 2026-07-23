@@ -92,6 +92,12 @@ export default function Header() {
             <Link to="/dashboard" className="flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm text-slate-700 hover:border-slate-300 hover:bg-slate-50">
               <FaUser /> Account
             </Link>
+            <Link
+  to="/my-orders"
+  className="rounded-full border border-orange-500 px-4 py-2 text-orange-500 hover:bg-orange-500 hover:text-white"
+>
+  My Orders
+</Link>
           </div>
 
           <button onClick={() => setIsOpen(true)} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 text-slate-700 md:hidden">
@@ -116,6 +122,27 @@ export default function Header() {
                 </Link>
               ))}
             </div>
+            <div className="mt-6 flex flex-col gap-3">
+
+  <Link
+    to="/dashboard"
+    onClick={() => setIsOpen(false)}
+    className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 text-slate-700 hover:bg-slate-100"
+  >
+    <FaUser />
+    Account
+  </Link>
+
+  <Link
+    to="/my-orders"
+    onClick={() => setIsOpen(false)}
+    className="flex items-center gap-3 rounded-2xl border border-orange-500 px-4 py-3 text-orange-500 hover:bg-orange-500 hover:text-white"
+  >
+    <FaShoppingBag />
+    My Orders
+  </Link>
+
+</div>
             <form onSubmit={onSearch} className="mt-8 flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2">
               <input
                 value={search}

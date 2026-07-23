@@ -26,6 +26,8 @@ export default function Login() {
       localStorage.setItem('IBID_USER_TOKEN', data.token);
       localStorage.setItem('IBID_USER_NAME', data.user.name);
       localStorage.setItem('IBID_USER_ID', data.user.id);
+      localStorage.setItem('IBID_USER', JSON.stringify(data.user));
+
       setEmail('');
       setPassword('');
       setMessage('Login successful! Redirecting to dashboard...');
@@ -50,6 +52,7 @@ export default function Login() {
               name="email"
               type="email"
               placeholder="Email address"
+              autoComplete="off"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-orange-500"
@@ -58,6 +61,7 @@ export default function Login() {
               name="password"
               type="password"
               placeholder="Password"
+              autoComplete="new-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-orange-500"
